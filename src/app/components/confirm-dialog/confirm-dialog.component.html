@@ -1,0 +1,33 @@
+<!-- Modal Backdrop -->
+<div class="modal-backdrop show"></div>
+
+<!-- Modal Dialog -->
+<div aria-hidden="true" aria-labelledby="confirmModal" class="modal show" role="dialog" style="display: block;"
+     tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="confirmModal">
+          {{ title || (mode === ConfirmationDialogMode.alert ? 'We are sorry!' : 'Confirmation') }}
+        </h5>
+        <button type="button" class="btn-close" aria-label="Close" (click)="cancel.emit()"></button>
+      </div>
+      <div class="modal-body">
+        {{ message }}
+      </div>
+      <div class="modal-footer">
+        <button *ngIf="mode !== ConfirmationDialogMode.alert" (click)="cancel.emit()" class="btn btn-secondary" type="button">
+          <i class="bi bi-x-lg"></i>
+          Cancel
+        </button>
+        <button (click)="confirm.emit()" [ngClass]="confirmButtonClass"
+                class="btn"
+                type="button">
+          <i [ngClass]="confirmIcon">
+          </i>
+          {{ buttonText }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

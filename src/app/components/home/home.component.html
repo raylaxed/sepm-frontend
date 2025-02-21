@@ -1,0 +1,19 @@
+<div class="card-container">
+  <div class="content-card">
+    <h1 class="display-4">Welcome to T I C K E T L I N E !</h1>
+    <hr class="my-4">
+
+    <div class="button-section" *ngIf="!authService.isLoggedIn()">
+      <a class="btn btn-primary btn-lg me-2" routerLink="/login" role="button">Login</a>
+      <a class="btn btn-secondary btn-lg" routerLink="/registration" role="button">Register</a>
+    </div>
+
+    <div class="button-section" *ngIf="isAdmin() && authService.isLoggedIn()">
+      <p>Access Admin Dashboard</p>
+      <p class="lead">
+        <a class="btn btn-primary btn-lg" routerLink="/admin" role="button">Admin Dashboard</a>
+      </p>
+    </div>
+
+  </div>
+</div>

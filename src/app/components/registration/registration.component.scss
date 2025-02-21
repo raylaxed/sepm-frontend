@@ -1,0 +1,98 @@
+.pt-5 {
+  min-height: 100vh;
+  background-image: url('http://localhost:8080/static/images/register_bg.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 7rem;
+  padding-right: 15rem;
+  border-radius: 15px;
+  margin: 0 2rem;
+}
+
+.card {
+  background-color: rgba(255, 255, 255, 0.95);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 15px;
+  width: 200%;
+  max-width: 800px;
+  margin-right: 0;
+  overflow: hidden;
+  
+  .card-header {
+    border-top-left-radius: 25px;
+    border-top-right-radius: 25px;
+    border-bottom: none;
+    text-align: center;
+    padding: 1.5rem;
+    
+    h3 {
+      margin-bottom: 0;
+      font-size: 2rem;
+    }
+  }
+
+  .card-body {
+    border-bottom-left-radius: 25px;
+    border-bottom-right-radius: 25px;
+    padding: 2rem;
+
+    .form-group {
+      margin-bottom: 1.0rem;
+
+      label {
+        margin-bottom: 0.5rem;
+        font-weight: 500;
+      }
+
+      input {
+        padding: 0.75rem 1rem;
+        border-radius: 8px;
+        border: 1px solid #ced4da;
+        
+        &:focus {
+          border-color: #000;
+          box-shadow: none;
+          outline: none;
+        }
+      }
+    }
+
+    .btn-success {
+      background-color: #000;
+      border-color: #000;
+      padding: 0.75rem;
+      font-size: 1.1rem;
+      margin-top: 1rem;
+      
+      &:hover {
+        background-color: #333;
+        border-color: #333;
+      }
+    }
+  }
+
+  .card-footer {
+    background-color: transparent;
+    border-top: 1px solid rgba(0,0,0,0.125);
+    padding: 1.5rem;
+    text-align: center;
+
+    p {
+      font-size: 1rem;
+    }
+
+    a {
+      color: #000;
+      text-decoration: none;
+      font-weight: 500;
+      
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+  }
+}

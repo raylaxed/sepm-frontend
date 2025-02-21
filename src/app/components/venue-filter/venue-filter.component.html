@@ -1,0 +1,164 @@
+<div class="filter-section card p-3 mb-4">
+    <h2 class="card-title mb-3">Filter Venues</h2>
+    <form class="filter-form" (ngSubmit)="applyFilters()">
+        <div class="row">
+            <div class="col-md-3 mb-3">
+                <label for="venueName" class="form-label">Venue Name</label>
+                <input type="text"
+                       id="venueName"
+                       class="form-control"
+                       placeholder="Venue name"
+                       [(ngModel)]="filters.name"
+                       name="name"
+                />
+            </div>
+
+            <div class="col-md-3 mb-3">
+                <label for="street" class="form-label">Street</label>
+                <input type="text"
+                       id="street"
+                       class="form-control"
+                       placeholder="Street"
+                       [(ngModel)]="filters.street"
+                       name="street"
+                />
+            </div>
+
+            <div class="col-md-2 mb-3">
+                <label for="city" class="form-label">City</label>
+                <input type="text"
+                       id="city"
+                       class="form-control"
+                       placeholder="City"
+                       [(ngModel)]="filters.city"
+                       (input)="onCityInput($event)"
+                       name="city"
+                />
+                <!-- Dynamic Dropdown -->
+                <ul *ngIf="filteredCities.length > 0" class="dropdown-menu show">
+                    <li
+                        *ngFor="let city of filteredCities.slice(0, 7)"
+                        class="dropdown-item"
+                        (click)="selectCity(city)">
+                        {{ city }}
+                  </li>
+                </ul>
+            </div>
+
+            <div class="col-md-2 mb-3">
+                <label for="country" class="form-label">Country</label>
+                <input type="text"
+                       id="country"
+                       class="form-control"
+                       placeholder="Country"
+                       [(ngModel)]="filters.county"
+                       (input)="onCountryInput($event)"
+                       name="country"
+                />
+                <!-- Dynamic Dropdown -->
+                <ul *ngIf="filteredCountries.length > 0" class="dropdown-menu show">
+                    <li
+                        *ngFor="let country of filteredCountries.slice(0, 7)"
+                        class="dropdown-item"
+                        (click)="selectCountry(country)">
+                        {{ country }}
+                    </li>
+                </ul>
+            </div>
+
+            <div class="col-md-2 mb-3">
+                <label for="postalCode" class="form-label">Postal Code</label>
+                <input type="text"
+                       id="postalCode"
+                       class="form-control"
+                       placeholder="Postal code"
+                       [(ngModel)]="filters.postalCode"
+                       name="postalCode"
+                />
+            </div>
+
+            <div class="col-auto mb-3">
+                <label class="form-label invisible">Apply</label>
+                <button type="submit"
+                        class="btn btn-primary d-block">
+                    Apply Filter
+                </button>
+            </div>
+        </div>
+    </form>
+</div>
+
+<div class="row g-4">
+    <div *ngFor="let venue of displayedVenues" class="col-12 col-md-6 col-lg-3">
+        <div class="card venue-card h-100" (click)="goToVenueDetail(venue.id)">
+            <div class="content-section">
+                <h5 class="card-title">{{ venue.name }}</h5>
+                <p class="card-text">
+                    {{ venue.street }}<br>
+                    {{ venue.postalCode }} {{ venue.city }}<br>
+                    {{ venue.county }}
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<nav aria-label="Page navigation" class="mt-4" *ngIf="totalPages > 1">
+    <ul class="pagination justify-content-center gap-2">
+        <li class="page-item" [class.disabled]="currentPage === 1">
+            <a class="page-link rounded-pill"
+               (click)="onPageChange(currentPage - 1)"
+               role="button"
+               [class.text-muted]="currentPage === 1">
+                &laquo; Previous
+            </a>
+        </li>
+
+        <!-- First page -->
+        <li class="page-item" *ngIf="currentPage > 2">
+            <a class="page-link rounded-pill" (click)="onPageChange(1)" role="button">1</a>
+        </li>
+
+        <!-- Ellipsis if needed -->
+        <li class="page-item disabled" *ngIf="currentPage > 3">
+            <span class="page-link border-0">...</span>
+        </li>
+
+        <!-- Pages around current page -->
+        <li class="page-item" *ngFor="let page of pages"
+            [class.active]="page === currentPage"
+            [class.d-none]="page < currentPage - 1 || page > currentPage + 1"
+            [class.rounded-pill]="page === currentPage">
+            <a class="page-link rounded-pill" (click)="onPageChange(page)" role="button">{{ page }}</a>
+        </li>
+
+        <!-- Ellipsis if needed -->
+        <li class="page-item disabled" *ngIf="currentPage < totalPages - 2">
+            <span class="page-link border-0">...</span>
+        </li>
+
+        <!-- Last page -->
+        <li class="page-item" *ngIf="currentPage < totalPages - 1">
+            <a class="page-link rounded-pill" (click)="onPageChange(totalPages)" role="button">{{ totalPages }}</a>
+        </li>
+
+        <!-- Next button -->
+        <li class="page-item" [class.disabled]="currentPage === totalPages">
+            <a class="page-link rounded-pill"
+               (click)="onPageChange(currentPage + 1)"
+               role="button"
+               [class.text-muted]="currentPage === totalPages">
+                Next &raquo;
+            </a>
+        </li>
+    </ul>
+</nav>
+
+<!-- Display total results with enhanced styling -->
+<div class="text-center mt-3 text-muted">
+    <p *ngIf="allVenues.length > 0">
+        Showing {{ (currentPage - 1) * pageSize + 1 }} to
+        {{ Math.min(currentPage * pageSize, allVenues.length) }} of {{ allVenues.length }} venues
+    </p>
+    <p *ngIf="allVenues.length === 0">No venues available</p>
+</div>

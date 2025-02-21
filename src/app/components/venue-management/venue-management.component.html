@@ -1,0 +1,44 @@
+<div class="venue-management">
+  <div class="header">
+    <h1>Venue Management</h1>
+    <button class="btn btn-primary" routerLink="/admin/venues/new">
+      Add New Venue
+    </button>
+  </div>
+
+  <div class="search-bar mb-3">
+    <input type="text" class="form-control" placeholder="Search venues..." [(ngModel)]="searchTerm" (input)="filterVenues()">
+  </div>
+
+  <div class="loading-spinner" *ngIf="loading">
+    Loading...
+  </div>
+
+  <div class="venues-grid" *ngIf="!loading">
+    <div class="venue-card" *ngFor="let venue of filteredVenues">
+      <h3>{{ venue.name }}</h3>
+      <div class="venue-details">
+        <p><strong>Address:</strong></p>
+        <p>{{ venue.street }}</p>
+        <p>{{ venue.city }}, {{ venue.county }} {{ venue.postalCode }}</p>
+        <p><strong>Halls:</strong> {{ getHallNames(venue.hallIds) }}</p>
+      </div>
+      <div class="venue-actions">
+        <button class="btn btn-outline-primary" [routerLink]="['/admin/venues', venue.id, 'edit']">
+          <i class="bi bi-pencil"></i> Edit
+        </button>
+        <button class="btn btn-outline-danger" (click)="onDeleteVenue(venue)">
+          <i class="bi bi-trash"></i> Delete
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<app-confirm-dialog
+  *ngIf="showConfirmDialog"
+  [message]="confirmDialogMessage"
+  [mode]="confirmDialogMode"
+  (confirm)="onConfirmDialog()"
+  (cancel)="onCancelDialog()">
+</app-confirm-dialog>

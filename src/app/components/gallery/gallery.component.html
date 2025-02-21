@@ -1,0 +1,38 @@
+<div class="gallery-container">
+  <h2>Image Gallery</h2>
+  
+  <div class="gallery-filter">
+    <button class="btn btn-outline-primary" (click)="filterType = 'all'" [class.active]="filterType === 'all'">All</button>
+    <button class="btn btn-outline-primary" (click)="filterType = 'artist'" [class.active]="filterType === 'artist'">Artists</button>
+    <button class="btn btn-outline-primary" (click)="filterType = 'event'" [class.active]="filterType === 'event'">Events</button>
+    <button class="btn btn-outline-primary" (click)="filterType = 'show'" [class.active]="filterType === 'show'">Shows</button>
+  </div>
+
+  <div class="loading-spinner" *ngIf="isLoading">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+  </div>
+
+  <div class="gallery-grid" *ngIf="!isLoading">
+    <div class="gallery-item" *ngFor="let item of galleryItems" 
+         (click)="navigateToDetail(item)"
+         [class.hidden]="filterType !== 'all' && filterType !== item.type"
+         [class.large]="item.size === 'large'">
+      <div class="image-container">
+        <img [src]="item.imageUrl || defaultImageUrl" 
+             [alt]="item.name"
+             class="gallery-image">
+        <div class="item-overlay">
+          <h3 class="item-name">{{ item.name }}</h3>
+          <p class="item-summary" *ngIf="item.summary">{{ item.summary }}</p>
+          <span class="item-type">{{ item.type | titlecase }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="no-items" *ngIf="!isLoading && galleryItems.length === 0">
+    No images available in the gallery.
+  </div>
+</div> 

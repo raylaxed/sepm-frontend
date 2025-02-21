@@ -1,0 +1,111 @@
+<div class="show-detail" *ngIf="show">
+  <div class="row">
+    <!-- Left Card - Show Information -->
+    <div class="col-md-6">
+      <div class="card info-card">
+        <img
+          [src]="show.imageUrl || 'http://localhost:8080/static/images/default_image.png'"
+          class="card-img-top show-image"
+          [alt]="show.name"
+        />
+        <div class="card-body">
+          <h2 class="card-title">{{ show.name }}</h2>
+
+          <div class="datetime-info mb-3">
+            {{ show.date | date:'EEE, MMM d, y' }} at {{ formatTime(show.time) }}
+          </div>
+
+          <!-- Artists Section -->
+          <div class="artists-section" *ngIf="show.artists?.length">
+            <div class="artists-list">
+              <div class="artist-item" *ngFor="let artist of show.artists"
+                   (click)="goToArtistDetail(artist.id, $event)"
+                   [style.cursor]="'pointer'">
+                <img [src]="artist.imageUrl || 'http://localhost:8080/static/images/default_image.png'"
+                     [alt]="artist.name"
+                     class="artist-image">
+                <div class="artist-info">
+                  <span class="artist-name">{{ artist.name }}</span>
+                  <span class="artist-summary">{{ truncateText(artist.summary, 50) }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Quick Info Section -->
+          <div class="quick-info">
+            <div class="info-item">
+              <i class="bi bi-clock"></i>
+              <span>{{ show.duration }} minutes</span>
+            </div>
+            <div class="info-item">
+              <i class="bi bi-geo-alt"></i>
+              <span>{{ show.venue?.name }}</span>
+            </div>
+            <div class="info-item">
+              <i class="bi bi-door-open"></i>
+              <span>{{ show.hall?.name }}</span>
+            </div>
+          </div>
+
+          <p class="card-text summary">
+            <strong>{{ show.summary }}</strong>
+          </p>
+          <div class="description-container">
+            <p class="card-text description" [class.expanded]="isDescriptionExpanded">
+              {{ show.text }}
+            </p>
+            <button class="btn btn-link expand-btn" (click)="toggleDescription()">
+              {{ isDescriptionExpanded ? 'Read less' : 'Read more' }}
+              <i class="bi" [class.bi-chevron-down]="!isDescriptionExpanded" [class.bi-chevron-up]="isDescriptionExpanded"></i>
+            </button>
+          </div>
+
+          <div class="venue-details">
+            <div class="address">
+              {{ show.venue?.street }}, {{ show.venue?.city }},
+              {{ show.venue?.county }}, {{ show.venue?.postalCode }}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Section - Hall Selection -->
+    <div class="col-md-6">
+      <div class="card hall-card">
+        <div class="card-body">
+          <ng-container *ngIf="!isShowInPast(); else pastShow">
+            <ng-container *ngIf="!isShowSoldOut(); else soldOutMessage">
+              <h3 class="card-title">Select Your Seats</h3>
+              <p class="text-muted">Click on seats or standing sectors to select tickets</p>
+              
+              <app-hall-select
+                *ngIf="show.venue && show.hall"
+                [hallId]="show.hall.id"
+                [showId]="show.id"
+                [show]="show">
+              </app-hall-select>
+            </ng-container>
+
+            <ng-template #soldOutMessage>
+              <div class="sold-out-message">
+                <i class="bi bi-exclamation-circle text-danger"></i>
+                <h4>This show is sold out</h4>
+                <p>Unfortunately, all tickets for this show have been sold.</p>
+              </div>
+            </ng-template>
+          </ng-container>
+
+          <ng-template #pastShow>
+            <div class="show-status-message">
+              <i class="bi bi-calendar2-check text-muted"></i>
+              <h3 class="card-title">Show Has Ended</h3>
+              <p>This show has already taken place.</p>
+            </div>
+          </ng-template>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

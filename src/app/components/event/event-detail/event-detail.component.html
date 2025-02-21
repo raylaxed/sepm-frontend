@@ -1,0 +1,98 @@
+<div class="event-detail" *ngIf="event">
+  <div class="row">
+    <!-- Left Card - Event Information -->
+    <div class="col-md-6">
+      <div class="card info-card">
+        <img
+          [src]="event.imageUrl || 'http://localhost:8080/static/images/default_image.png'"
+          class="card-img-top event-image"
+          [alt]="event.name"
+        />
+        <div class="card-body">
+          <div class="title-row">
+            <h2 class="card-title">{{ event.name }}</h2>
+            <span class="badge bg-primary">{{ event.type }}</span>
+          </div>
+          
+          <div class="datetime-info mb-3">
+            {{ event.durationFrom | date:'EEE, MMM d, y' }} - {{ event.durationTo | date:'EEE, MMM d, y' }}
+          </div>
+
+          <div class="artists-section" *ngIf="allArtists.size > 0">
+            <div class="artists-list">
+              <div class="artist-item" *ngFor="let artist of Array.from(allArtists)"
+                   (click)="goToArtistDetail(artist.id)"
+                   [style.cursor]="'pointer'">
+                <img [src]="artist.imageUrl || 'http://localhost:8080/static/images/default_image.png'" 
+                     [alt]="artist.name"
+                     class="artist-image">
+                <div class="artist-info">
+                  <span class="artist-name">{{ artist.name }}</span>
+                  <span class="artist-summary">{{ truncateText(artist.summary, 50) }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <p class="card-text summary">
+            <strong>{{ event.summary }}</strong>
+          </p>
+
+          <div class="description-container">
+            <p class="card-text description" [class.expanded]="isDescriptionExpanded">
+              {{ event.text }}
+            </p>
+            <button class="btn btn-link expand-btn" (click)="toggleDescription()">
+              {{ isDescriptionExpanded ? 'Read less' : 'Read more' }}
+              <i class="bi" [class.bi-chevron-down]="!isDescriptionExpanded" [class.bi-chevron-up]="isDescriptionExpanded"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Card - Available Shows -->
+    <div class="col-md-6">
+      <div class="card shows-card">
+        <div class="card-body">
+          <h3 class="card-title">Available Shows</h3>
+          
+          <div *ngIf="event.shows && event.shows.length > 0" class="shows-list">
+            <div class="show-item" 
+                 *ngFor="let show of event.shows" 
+                 (click)="!isShowSoldOut(show) && goToShowDetail(show.id)"
+                 [class.sold-out]="isShowSoldOut(show)">
+              <div class="sold-out-overlay" *ngIf="isShowSoldOut(show)">
+                <span class="sold-out-text">SOLD OUT</span>
+              </div>
+              <img [src]="show.imageUrl || 'http://localhost:8080/static/images/default_image.png'"
+                   [alt]="show.name"
+                   class="show-image">
+              <div class="show-info">
+                <div class="show-header">
+                  <div class="title-section">
+                    <div class="title-row">
+                      <h4 class="show-name">{{ show.name }}</h4>
+                    </div>
+                    <div class="show-datetime">
+                      <span class="date">{{ show.date | date }}</span>
+                      <span class="time">{{ formatTime(show.time) }}</span>
+                    </div>
+                  </div>
+                  <div class="show-type">
+                    <span class="badge bg-primary">{{ show.eventType }}</span>
+                  </div>
+                </div>
+                <p class="show-summary">{{ show.summary }}</p>
+              </div>
+            </div>
+          </div>
+
+          <div *ngIf="!event.shows || event.shows.length === 0" class="text-center py-3">
+            <p class="mb-0">No shows available for this event.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,62 @@
+<div class="search-results">
+  <!-- No Results Message -->
+  <div *ngIf="!hasAnyResults()" class="no-results-message">
+    <h2>No results found</h2>
+    <p>Try adjusting your search criteria</p>
+  </div>
+
+  <!-- Tabs -->
+  <div *ngIf="hasAnyResults()" class="tabs">
+    <button
+      *ngIf="hasResults('shows')"
+      [class.active]="activeTab === 'shows'"
+      (click)="setActiveTab('shows')">
+      Shows ({{resultCounts.shows}})
+    </button>
+    <button
+      *ngIf="hasResults('events')"
+      [class.active]="activeTab === 'events'"
+      (click)="setActiveTab('events')">
+      Events ({{resultCounts.events}})
+    </button>
+    <button
+      *ngIf="hasResults('artists')"
+      [class.active]="activeTab === 'artists'"
+      (click)="setActiveTab('artists')">
+      Artists ({{resultCounts.artists}})
+    </button>
+    <button
+      *ngIf="hasResults('venues')"
+      [class.active]="activeTab === 'venues'"
+      (click)="setActiveTab('venues')">
+      Venues ({{resultCounts.venues}})
+    </button>
+  </div>
+
+  <!-- Content -->
+  <div *ngIf="hasAnyResults()" class="tab-content">
+    <app-show-filter
+      *ngIf="activeTab === 'shows'"
+      [preloadedResults]="getResultsForTab('shows')"
+      (resultCountUpdated)="updateResultCount($event)">
+    </app-show-filter>
+
+    <app-event-filter
+      *ngIf="activeTab === 'events'"
+      [preloadedResults]="getResultsForTab('events')"
+      (resultCountUpdated)="updateResultCount($event)">
+    </app-event-filter>
+
+    <app-artist-filter
+      *ngIf="activeTab === 'artists'"
+      [preloadedResults]="getResultsForTab('artists')"
+      (resultCountUpdated)="updateResultCount($event)">
+    </app-artist-filter>
+
+    <app-venue-filter
+      *ngIf="activeTab === 'venues'"
+      [preloadedResults]="getResultsForTab('venues')"
+      (resultCountUpdated)="updateResultCount($event)">
+    </app-venue-filter>
+  </div>
+</div>

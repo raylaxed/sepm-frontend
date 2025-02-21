@@ -1,0 +1,44 @@
+<!-- Modal Backdrop -->
+<div class="modal-backdrop show"></div>
+
+<!-- Modal Dialog -->
+<div aria-hidden="true" aria-labelledby="inputModal" class="modal show" role="dialog" style="display: block;"
+     tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="inputModal">{{ title }}</h5>
+        <button type="button" class="btn-close" aria-label="Close" (click)="cancel.emit()"></button>
+      </div>
+      <div class="modal-body">
+        <p>{{ message }}</p>
+        <div class="form-group">
+          <label [for]="inputLabel">{{ inputLabel }}</label>
+          <input [type]="inputType"
+                 min="0"
+                 class="form-control"
+                 [id]="inputLabel"
+                 [(ngModel)]="inputValue"
+                 (input)="onInputChange($event)"
+                 [placeholder]="placeholder"
+                 (keydown)="$event.stopPropagation()"
+                 (keypress)="$event.key === '-' ? $event.preventDefault() : null"
+                 (keydown.enter)="$event.preventDefault(); isInputValid() && input.emit(inputValue)">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button (click)="cancel.emit()" class="btn btn-secondary" type="button">
+          <i class="bi bi-x-lg"></i>
+          Cancel
+        </button>
+        <button [disabled]="!isInputValid()" 
+                (click)="input.emit(inputValue)" 
+                class="btn btn-primary" 
+                type="button">
+          <i class="bi bi-check-lg"></i>
+          {{ inputText }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

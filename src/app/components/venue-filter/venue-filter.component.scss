@@ -1,0 +1,71 @@
+.filter-section {
+    background-color: #f8f9fa;
+    border-radius: 8px;
+}
+
+.venue-card {
+    transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    height: 180px;
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    border: none;
+    width: 100%;
+
+    &:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+        cursor: pointer;
+    }
+
+    .content-section {
+        height: 100%;
+        width: 100%;
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        background-color: white;
+    }
+}
+
+.card-title {
+    font-size: 1.2rem;
+    margin-bottom: 12px;
+    color: #333;
+    font-weight: 600;
+}
+
+.card-text {
+    font-size: 0.95rem;
+    color: #666;
+    margin: 0;
+    line-height: 1.5;
+}
+
+.btn-primary {
+    min-width: 120px;
+}
+
+.pagination {
+    .page-item {
+        &.active .page-link {
+            background-color: #0d6efd;
+            border-color: #0d6efd;
+            color: white;
+        }
+    }
+
+    .page-link {
+        cursor: pointer;
+        margin: 0 0.2rem;
+        
+        &.border-0 {
+            background: none;
+            border: none;
+        }
+
+        &.rounded-pill {
+            border-radius: 50rem !important;
+        }
+    }
+}

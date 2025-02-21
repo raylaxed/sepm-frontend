@@ -1,0 +1,212 @@
+<div *ngIf="errorMessage" class="alert alert-danger alert-dismissible fade show" role="alert">
+  <strong>Error!</strong> {{ errorMessage }}
+  <button type="button" (click)="vanishError()" class="close" aria-label="Close">
+    <span aria-hidden="true">&times;</span>
+  </button>
+</div>
+
+<div class="mt-4 container">
+  <div class="card">
+    <div class="card-header">
+      <h5>Create Show</h5>
+    </div>
+    <div class="card-body">
+      <form #showForm="ngForm" (ngSubmit)="onSubmit()">
+
+        <!-- Name -->
+        <div class="form-group">
+          <label for="inputName">Name</label>
+          <input type="text" id="inputName" name="name" class="form-control" required
+                 placeholder="Enter show name" [(ngModel)]="show.name">
+        </div>
+
+        <!-- Date and Time -->
+        <div class="row">
+          <div class="col-md-6">
+            <div class="form-group">
+              <label for="inputDate">Date</label>
+              <input type="date" id="inputDate" name="date" class="form-control" required
+                     [(ngModel)]="show.date">
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="form-group">
+              <label for="inputTime">Time</label>
+              <input type="time" id="inputTime" name="time" class="form-control" required
+                     [(ngModel)]="show.time">
+            </div>
+          </div>
+        </div>
+
+        <!-- Duration -->
+        <div class="form-group">
+          <label for="inputDuration">Duration</label>
+          <input type="number" id="inputDuration" name="duration" class="form-control" required
+                 [(ngModel)]="show.duration" placeholder="Enter duration in minutes">
+        </div>
+
+        <!-- Event Type -->
+        <div class="form-group">
+          <label for="eventType">Event Type</label>
+          <select id="eventType" name="eventType" class="form-control" required [(ngModel)]="show.eventType">
+            <option value="" disabled>Select event type</option>
+            <option *ngFor="let type of eventTypes" [value]="type">{{type}}</option>
+          </select>
+        </div>
+
+        <!-- Summary -->
+        <div class="form-group">
+          <label for="inputSummary">Summary</label>
+          <textarea id="inputSummary" name="summary" class="form-control" rows="3" required
+                    placeholder="Enter summary" [(ngModel)]="show.summary"></textarea>
+        </div>
+
+        <!-- Text -->
+        <div class="form-group">
+          <label for="inputText">Text</label>
+          <textarea id="inputText" name="text" class="form-control" rows="6" required
+                    placeholder="Enter detailed description" [(ngModel)]="show.text"></textarea>
+        </div>
+
+        <!-- Search Bar for Artists -->
+        <div>
+          <label for="artistSearch">Search for Artists</label>
+          <input type="text" id="artistSearch" name="artists" class="form-control" [(ngModel)]="searchQuery" (ngModelChange)="onSearchChange()" placeholder="Search for artists...">
+        </div>
+
+        <!-- Display Search Results as Dropdown -->
+        <div *ngIf="searchQuery.length > 0" class="search-results dropdown" style="position: relative;">
+          <ul class="dropdown-menu show" style="width: 100%; position: absolute; z-index: 1000;">
+            <li *ngIf="artists.length === 0" class="dropdown-item">
+              No artists fitting the search criteria.
+            </li>
+            <li *ngFor="let artist of artists" (click)="addArtist(artist)" class="dropdown-item">
+              {{ artist.name }}
+            </li>
+          </ul>
+        </div>
+
+        <!-- Display Selected Artists -->
+        <div *ngIf="selectedArtists.length > 0" class="mt-3">
+          <label>Selected Artists:</label>
+          <div class="selected-artists">
+            <div *ngFor="let artist of selectedArtists" class="border p-3 rounded shadow-sm mb-2">
+              <div class="d-flex align-items-center position-relative">
+                <img [src]="artist.imageUrl || 'http://localhost:8080/static/images/default_image.png'"
+                     alt="{{ artist.name }}"
+                     class="artist-image me-3">
+                <div class="artist-content">
+                  <strong>{{ artist.name }}</strong>
+                  <div class="text-muted">{{ artist.summary }}</div>
+                </div>
+                <button type="button"
+                        class="btn btn-close artist-close"
+                        (click)="deselectArtist(artist)"
+                        aria-label="Remove artist">
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Image -->
+        <div class="form-group">
+          <label for="inputImage">Image</label>
+
+          <!-- File Input: Shown only when no image is selected -->
+          <div *ngIf="!selectedImagePreview">
+            <input type="file" id="inputImage" name="image" class="form-control" required accept="image/*"
+                   (change)="onImageSelected($event)">
+          </div>
+
+          <!-- Selected Image Preview: Shown only when an image is selected -->
+          <div *ngIf="selectedImagePreview" class="d-flex align-items-center">
+            <img [src]="selectedImagePreview" alt="Selected Image" class="img-thumbnail mr-3" style="max-height: 100px;">
+            <button type="button" class="btn btn-danger" (click)="removeImage()">Remove Image</button>
+          </div>
+        </div>
+
+        <!-- Search Bar for Venues -->
+        <div>
+          <label for="venueSearch">Search for a Venue</label>
+          <input type="text" id="venueSearch" name="venue" class="form-control" [(ngModel)]="venueSearchQuery" (ngModelChange)="onVenueSearchChange()" placeholder="Search for venues...">
+        </div>
+
+        <!-- Display Search Results for Venues as Dropdown -->
+        <div *ngIf="venueSearchQuery.length > 0" class="search-results dropdown" style="position: relative;">
+          <ul class="dropdown-menu show" style="width: 100%; position: absolute; z-index: 1000; max-height: 320px; overflow-y: auto;">
+            <li *ngIf="venues.length === 0" class="dropdown-item">
+              No venues fitting the search criteria.
+            </li>
+            <li *ngFor="let venue of venues" (click)="selectVenue(venue)" class="dropdown-item">
+              {{ venue.name }}
+            </li>
+          </ul>
+        </div>
+
+        <!-- Display Selected Venue -->
+        <div *ngIf="selectedVenue">
+          <label>Selected Venue:</label>
+          <div class="border p-3 rounded shadow-sm d-flex justify-content-between align-items-center">
+            <div>
+              <strong>{{ selectedVenue.name }}</strong>
+            </div>
+            <button type="button" class="btn btn-close" (click)="deselectVenue()" aria-label="Close"></button>
+          </div>
+
+          <!-- Display Halls Selection -->
+          <div *ngIf="venueHalls.length > 0" class="mt-3">
+            <label>{{ selectedHall ? 'Selected Hall:' : 'Select Hall:' }}</label>
+            <div class="list-group">
+              <!-- Show all halls when no hall is selected -->
+              <div *ngIf="!selectedHall">
+                <div *ngFor="let hall of venueHalls"
+                     class="border p-3 rounded shadow-sm mb-2"
+                     style="cursor: pointer;"
+                     (click)="selectHall(hall)">
+                  <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                      <strong>{{ hall.name }}</strong>
+                      <div class="small text-muted">Capacity: {{ hall.capacity }}</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Show only selected hall when one is chosen -->
+              <div *ngIf="selectedHall"
+                   class="border p-3 rounded shadow-sm mb-2">
+                <div class="d-flex justify-content-between align-items-center">
+                  <div>
+                    <strong>{{ selectedHall.name }}</strong>
+                    <div class="small text-muted">Capacity: {{ selectedHall.capacity }}</div>
+                    <div class="info-text">Click on sectors to set the prices!</div>
+                  </div>
+                  <button type="button"
+                          class="btn btn-close"
+                          (click)="deselectHall()"
+                          aria-label="Close"></button>
+                </div>
+
+                <!-- Add Hall Display -->
+                <div class="mt-3">
+                  <app-hall-view
+                    [hall]="selectedHall"
+                    (sectorPricesChanged)="onSectorPricesChanged($event)">
+                  </app-hall-view>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div *ngIf="venueHalls.length === 0" class="alert alert-info mt-2">
+            No halls available for this venue.
+          </div>
+        </div>
+
+        <!-- Submit Button -->
+        <button type="submit" class="btn btn-success float-right mt-3">Add Show</button>
+      </form>
+    </div>
+  </div>
+</div>

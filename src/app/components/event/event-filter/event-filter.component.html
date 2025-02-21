@@ -1,0 +1,144 @@
+<div class="filter-section card p-3 mb-4">
+    <h2 class="card-title mb-3">Filter Events</h2>
+    <form class="filter-form" (ngSubmit)="applyFilters()">
+        <div class="row">
+            <div class="col-md-3 mb-3">
+                <label for="eventName" class="form-label">Event Name</label>
+                <input type="text"
+                       id="eventName"
+                       class="form-control"
+                       placeholder="Filter by name"
+                       [(ngModel)]="filters.name"
+                       name="name"
+                />
+            </div>
+
+            <div class="col-md-3 mb-3">
+                <label for="eventType" class="form-label">Event Type</label>
+                <select id="eventType"
+                        class="form-control"
+                        [(ngModel)]="filters.type"
+                        name="type">
+                    <option value="" disabled selected>Select event type</option>
+                    <option *ngFor="let type of eventTypes" [value]="type">
+                        {{type}}
+                    </option>
+                </select>
+            </div>
+
+            <div class="col-md-3 mb-3">
+                <label for="duration" class="form-label">Show duration</label>
+                <input type="number"
+                       id="duration"
+                       class="form-control"
+                       placeholder="Duration +- 30 minutes"
+                       [(ngModel)]="filters.duration"
+                       name="minDuration"
+                />
+            </div>
+
+            <div class="col-md-3 mb-3">
+                <label for="text" class="form-label">Description</label>
+                <input type="text"
+                       id="text"
+                       class="form-control"
+                       placeholder="Filter by text"
+                       [(ngModel)]="filters.text"
+                       name="text"
+                />
+            </div>
+
+            <div class="col-auto mb-3">
+                <label class="form-label invisible">Apply</label>
+                <button type="submit"
+                        class="btn btn-primary d-block">
+                    Apply Filter
+                </button>
+            </div>
+        </div>
+    </form>
+</div>
+
+<div class="row g-4">
+    <div *ngFor="let event of displayedEvents" class="col-12 col-md-6 col-lg-3">
+        <div class="card event-card h-100" (click)="goToEventDetail(event.id)">
+            <div class="card-layout">
+                <div class="image-section">
+                    <img [src]="event.imageUrl || 'http://localhost:8080/static/images/default_image.png'"
+                         [alt]="event.name"
+                         class="card-img event-image">
+                </div>
+                <div class="content-section">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <div class="event-date">{{ event.durationFrom | date:'EEE, MMM d, y' }}</div>
+                        <div class="event-type">
+                            <span class="badge bg-primary">{{ event.type }}</span>
+                        </div>
+                    </div>
+                    <h5 class="card-title">{{ event.name }}</h5>
+                    <p class="card-text">{{ event.summary }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<nav aria-label="Page navigation" class="mt-4" *ngIf="totalPages > 1">
+    <ul class="pagination justify-content-center gap-2">
+        <li class="page-item" [class.disabled]="currentPage === 1">
+            <a class="page-link rounded-pill"
+               (click)="onPageChange(currentPage - 1)"
+               role="button"
+               [class.text-muted]="currentPage === 1">
+                &laquo; Previous
+            </a>
+        </li>
+
+        <!-- First page -->
+        <li class="page-item" *ngIf="currentPage > 2">
+            <a class="page-link rounded-pill" (click)="onPageChange(1)" role="button">1</a>
+        </li>
+
+        <!-- Ellipsis if needed -->
+        <li class="page-item disabled" *ngIf="currentPage > 3">
+            <span class="page-link border-0">...</span>
+        </li>
+
+        <!-- Pages around current page -->
+        <li class="page-item" *ngFor="let page of pages"
+            [class.active]="page === currentPage"
+            [class.d-none]="page < currentPage - 1 || page > currentPage + 1"
+            [class.rounded-pill]="page === currentPage">
+            <a class="page-link rounded-pill" (click)="onPageChange(page)" role="button">{{ page }}</a>
+        </li>
+
+        <!-- Ellipsis if needed -->
+        <li class="page-item disabled" *ngIf="currentPage < totalPages - 2">
+            <span class="page-link border-0">...</span>
+        </li>
+
+        <!-- Last page -->
+        <li class="page-item" *ngIf="currentPage < totalPages - 1">
+            <a class="page-link rounded-pill" (click)="onPageChange(totalPages)" role="button">{{ totalPages }}</a>
+        </li>
+
+        <!-- Next button -->
+        <li class="page-item" [class.disabled]="currentPage === totalPages">
+            <a class="page-link rounded-pill"
+               (click)="onPageChange(currentPage + 1)"
+               role="button"
+               [class.text-muted]="currentPage === totalPages">
+                Next &raquo;
+            </a>
+        </li>
+    </ul>
+</nav>
+
+<!-- Display total results with enhanced styling -->
+<div class="text-center mt-3 text-muted">
+    <p *ngIf="allEvents.length > 0">
+        Showing {{ (currentPage - 1) * pageSize + 1 }} to
+        {{ Math.min(currentPage * pageSize, allEvents.length) }} of {{ allEvents.length }} events
+    </p>
+    <p *ngIf="allEvents.length === 0">No events available</p>
+</div>

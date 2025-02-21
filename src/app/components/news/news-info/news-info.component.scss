@@ -1,0 +1,133 @@
+@use "sass:map";
+@import "bootstrap/scss/functions";
+@import "bootstrap/scss/variables";
+@import "bootstrap/scss/mixins";
+
+.responsive-primary-button, .responsive-info-button, .responsive-warning-button, .responsive-danger-button, .responsive-dark-button, .responsive-tree-button {
+  @include button-variant($light, $light);
+}
+
+@each $color in (primary, info, warning, danger) {
+  $value: map.get($theme-colors, $color);
+  .responsive-#{$color}-button:hover {
+    @include button-variant($value, $value);
+  }
+}
+
+.card {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  border: none;
+  overflow: hidden;
+  margin: 0 auto;
+}
+
+.carousel {
+  height: 800px;
+  
+  .card-img {
+    object-fit: cover;
+    width: 100%;
+    height: 100%;
+    min-height: unset;
+  }
+}
+
+.card-body {
+  height: auto;
+  max-height: 800px;
+  overflow-y: auto;
+  padding: 3rem;
+}
+
+.card-title {
+  margin-bottom: 1.5rem;
+  font-size: 2.5rem;
+}
+
+.card-subtitle {
+  font-size: 1rem;
+}
+
+.position-relative {
+  z-index: 2;
+}
+
+.btn {
+  i {
+    margin-right: 0.5rem;
+  }
+}
+
+.btn-light {
+  padding: 0.5rem 1.5rem;
+  background-color: rgba(240, 240, 240, 0.9);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+
+  &:hover {
+    background-color: rgba(230, 230, 230, 0.95);
+    border-color: rgba(0, 0, 0, 0.2);
+  }
+}
+
+.btn-dark {
+  padding: 0.5rem 1.5rem;
+  font-weight: 500;
+
+  &:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+}
+
+:host {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.modal-content {
+  background-color: white;
+  height: auto;
+  display: flex;
+  flex-direction: column;
+  max-height: 80vh;
+}
+
+.container-fluid {
+  flex: 1;
+  overflow: hidden;
+  
+  .row {
+    height: auto;
+  }
+}
+
+.close-button {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  z-index: 1000;
+  background-color: rgba(255, 255, 255, 0.9);
+  border: none;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+  
+  &:hover {
+    background-color: rgba(255, 255, 255, 1);
+    box-shadow: 0 3px 8px rgba(0,0,0,0.3);
+  }
+  
+  i {
+    font-size: 1.2rem;
+  }
+}
+
+.card-text {
+  font-size: 1.1rem;
+  line-height: 1.7;
+}

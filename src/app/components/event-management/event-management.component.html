@@ -1,0 +1,56 @@
+<div class="card-container">
+  <h1 class="display-4">Event Management</h1>
+  <hr class="my-4">
+
+  <div class="cards-grid">
+    <div class="action-card event-card">
+      <h3>Event Actions</h3>
+      <p>Manage and filter events for the venue</p>
+      <div class="button-group">
+        <a class="btn btn-primary btn-lg" [routerLink]="['/create-event']" role="button">Create Event</a>
+      </div>
+    </div>
+
+    <div class="action-card show-card">
+      <h3>Create Show</h3>
+      <p>Add a new show to the schedule</p>
+      <div class="button-group">
+        <a class="btn btn-primary btn-lg d-block mb-2" [routerLink]="['/create-show']" role="button">Create Show</a>
+      </div>
+
+      <div class="shows-list">
+        <h4>Existing Shows</h4>
+        <div class="show-items">
+          <div *ngFor="let show of shows" class="show-item">
+            <h5>{{show.name}}</h5>
+            <p>{{show.summary | slice:0:30}}{{show.summary?.length > 30 ? '...' : ''}}</p>
+            <p class="show-details">
+              <span>Date: {{show.date | date}}</span>
+              <span>Time: {{show.time}}</span>
+            </p>
+          </div>
+          <p *ngIf="shows.length === 0" class="no-shows">No shows available</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="action-card artist-card">
+      <h3>Add Artist</h3>
+      <p>Add a new artist to the system</p>
+      <div class="button-group">
+        <a class="btn btn-primary btn-lg d-block mb-2" [routerLink]="['/create-artist']" role="button">Add Artist</a>
+      </div>
+
+      <div class="artists-list">
+        <h4>Existing Artists</h4>
+        <div class="artist-items">
+          <div *ngFor="let artist of artists" class="artist-item">
+            <h5>{{artist.name}}</h5>
+            <p>{{artist.summary | slice:0:30}}{{artist.summary?.length > 30 ? '...' : ''}}</p>
+          </div>
+          <p *ngIf="artists.length === 0" class="no-artists">No artists available</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

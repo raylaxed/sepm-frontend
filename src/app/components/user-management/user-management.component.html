@@ -1,0 +1,275 @@
+<div class="user-management">
+  <div class="header">
+    <h1>User Management</h1>
+    <div class="action-buttons">
+      <button class="btn btn-primary" (click)="openAddUserModal(userAddModal)">
+        Add User
+      </button>
+      <button class="btn btn-warning" (click)="openResetPasswordModal(resetPasswordModal)">
+        Reset User Password
+      </button>
+    </div>
+  </div>
+
+  <div class="alert alert-danger" *ngIf="error">
+    {{ error }}
+  </div>
+
+  <div class="loading-spinner" *ngIf="loading">
+    Loading...
+  </div>
+
+  <div class="search-bar">
+    <input type="text" class="form-control" placeholder="Search by name" [(ngModel)]="searchTerm" (input)="searchUsers()">
+  </div>
+
+  <!-- The users list -->
+  <div class="users-list">
+    <table class="table table-striped">
+      <thead>
+      <tr>
+        <th>First Name</th>
+        <th>Last Name</th>
+        <th>Email</th>
+        <th>Status</th>
+        <th>Role</th>
+        <th>Actions</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr *ngFor="let user of displayedUsers">
+        <td>{{ user.firstName }}</td>
+        <td>{{ user.lastName }}</td>
+        <td>{{ user.email }}</td>
+        <td>
+            <span class="status-badge" [ngClass]="{'blocked': user.blocked, 'active': !user.blocked}">
+              {{ user.blocked ? 'Blocked' : 'Active' }}
+            </span>
+        </td>
+        <td>{{ user.admin ? 'Admin' : 'User' }}</td>
+        <td>
+          <button class="btn btn-outline-primary" style="margin-right: 10px;" (click)="openResetPasswordListModal(resetPasswordModalList, user.email)">
+            Reset Password
+          </button>
+          <button class="btn btn-outline-danger" [class.btn-outline-success]="user.blocked" (click)="openBlockUnblockModal(blockUnblockModal, user)">
+            {{ user.blocked ? 'Unblock' : 'Block' }}
+          </button>
+        </td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Add pagination navigation -->
+  <nav aria-label="Page navigation" class="mt-4" *ngIf="totalPages > 1">
+    <ul class="pagination justify-content-center gap-2">
+      <li class="page-item" [class.disabled]="currentPage === 1">
+        <a class="page-link rounded-pill"
+           (click)="onPageChange(currentPage - 1)"
+           role="button"
+           [class.text-muted]="currentPage === 1">
+          &laquo; Previous
+        </a>
+      </li>
+
+      <!-- First page -->
+      <li class="page-item" *ngIf="currentPage > 2">
+        <a class="page-link rounded-pill" (click)="onPageChange(1)" role="button">1</a>
+      </li>
+
+      <!-- Ellipsis if needed -->
+      <li class="page-item disabled" *ngIf="currentPage > 3">
+        <span class="page-link border-0">...</span>
+      </li>
+
+      <!-- Pages around current page -->
+      <li class="page-item" *ngFor="let page of pages"
+          [class.active]="page === currentPage"
+          [class.d-none]="page < currentPage - 1 || page > currentPage + 1"
+          [class.rounded-pill]="page === currentPage">
+        <a class="page-link rounded-pill" (click)="onPageChange(page)" role="button">{{ page }}</a>
+      </li>
+
+      <!-- Ellipsis if needed -->
+      <li class="page-item disabled" *ngIf="currentPage < totalPages - 2">
+        <span class="page-link border-0">...</span>
+      </li>
+
+      <!-- Last page -->
+      <li class="page-item" *ngIf="currentPage < totalPages - 1">
+        <a class="page-link rounded-pill" (click)="onPageChange(totalPages)" role="button">{{ totalPages }}</a>
+      </li>
+
+      <!-- Next button -->
+      <li class="page-item" [class.disabled]="currentPage === totalPages">
+        <a class="page-link rounded-pill"
+           (click)="onPageChange(currentPage + 1)"
+           role="button"
+           [class.text-muted]="currentPage === totalPages">
+          Next &raquo;
+        </a>
+      </li>
+    </ul>
+  </nav>
+
+  <!-- Add results count display -->
+  <div class="text-center mt-3 text-muted">
+    <p *ngIf="filteredUsers.length > 0">
+      Showing {{ (currentPage - 1) * pageSize + 1 }} to
+      {{ Math.min(currentPage * pageSize, filteredUsers.length) }} of {{ filteredUsers.length }} users
+    </p>
+    <p *ngIf="filteredUsers.length === 0">No users available</p>
+  </div>
+
+  <!-- Reset Password Modal for list-->
+  <ng-template #resetPasswordModalList let-modal>
+    <div class="modal-header">
+      <h5 class="modal-title">Reset User Password</h5>
+      <button type="button" class="close" (click)="modal.dismiss('X')" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <form #resetPasswordForm="ngForm">
+        <p>Are you sure you want to reset the password for {{ resetEmail }}?</p>
+        <button type="button" (click)="resetPassword(resetPasswordForm)" class="btn btn-primary float-right">Confirm</button>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-secondary" (click)="modal.dismiss('close')">Close</button>
+    </div>
+  </ng-template>
+
+  <!-- Reset Password Modal -->
+  <ng-template #resetPasswordModal let-modal>
+    <div class="modal-header">
+      <h5 class="modal-title">Reset User Password</h5>
+      <button type="button" class="close" (click)="modal.dismiss('X')" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <form #resetPasswordForm="ngForm">
+        <div class="form-group">
+          <label for="resetEmail">Email</label>
+          <input type="email" name="email" class="form-control" id="resetEmail" required
+                 placeholder="Enter user email" [(ngModel)]="resetEmail" #email="ngModel">
+          <div *ngIf="submitted && email.errors" class="error">
+            <small class="form-text text-warning" *ngIf="email.errors?.['required']">Email is required!</small>
+            <small class="form-text text-warning" *ngIf="email.errors?.['email']">Invalid email format!</small>
+          </div>
+        </div>
+        <button type="submit" (click)="resetPassword(resetPasswordForm)" class="btn btn-primary float-right">Reset
+          Password
+        </button>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-secondary" (click)="modal.dismiss('close')">Close</button>
+    </div>
+  </ng-template>
+
+  <!-- Block/Unblock Modal -->
+  <ng-template #blockUnblockModal let-modal>
+    <div class="modal-header">
+      <h5 class="modal-title">Block/Unblock User</h5>
+      <button type="button" class="close" (click)="modal.dismiss('X')" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <p>Are you sure you want to {{ selectedUser?.blocked ? 'unblock' : 'block' }} the user with email {{ selectedUser?.email }}?</p>
+      <div class="button-group">
+        <button type="button" (click)="blockUser()" class="btn btn-danger" *ngIf="!selectedUser?.blocked">Block User</button>
+        <button type="button" (click)="unblockUser()" class="btn btn-success" *ngIf="selectedUser?.blocked">Unblock User</button>
+        <button type="button" class="btn btn-secondary" (click)="modal.dismiss('cancel')">Cancel</button>
+      </div>
+    </div>
+  </ng-template>
+
+  <!-- Add User Modal -->
+  <ng-template #userAddModal let-modal>
+    <div class="modal-header">
+      <h5 class="modal-title">Add User</h5>
+      <button type="button" class="close" (click)="modal.dismiss('X')" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <form (ngSubmit)="addUser(userForm)" #userForm="ngForm">
+        <div class="form-group">
+          <label for="inputFirstName">First Name</label>
+          <input type="text" name="firstName" class="form-control" id="inputFirstName" required
+                 placeholder="Enter first name" [(ngModel)]="newUser.firstName">
+          <div *ngIf="submitted && userForm.controls['firstName']?.errors" class="error">
+            <small class="form-text text-warning" *ngIf="userForm.controls['firstName']?.errors?.['required']">First
+              name is required!</small>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="inputLastName">Last Name</label>
+          <input type="text" name="lastName" class="form-control" id="inputLastName" required
+                 placeholder="Enter last name" [(ngModel)]="newUser.lastName">
+          <div *ngIf="submitted && userForm.controls['lastName']?.errors" class="error">
+            <small class="form-text text-warning" *ngIf="userForm.controls['lastName']?.errors?.['required']">Last name
+              is required!</small>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="inputEmailAddUser">Email</label>
+          <input type="email" name="email" class="form-control" id="inputEmailAddUser" required
+                 placeholder="Enter email" [(ngModel)]="newUser.email">
+          <div *ngIf="submitted && userForm.controls['email']?.errors" class="error">
+            <small class="form-text text-warning" *ngIf="userForm.controls['email']?.errors?.['required']">Email is
+              required!</small>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="inputAddress">Address</label>
+          <input type="text" name="address" class="form-control" id="inputAddress" required
+                 placeholder="Enter address" [(ngModel)]="newUser.address">
+          <div *ngIf="submitted && userForm.controls['address']?.errors" class="error">
+            <small class="form-text text-warning" *ngIf="userForm.controls['address']?.errors?.['required']">Address is
+              required!</small>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="inputDateOfBirth">Date of Birth</label>
+          <input type="date" name="dateOfBirth" class="form-control" id="inputDateOfBirth" required
+                 [(ngModel)]="newUser.dateOfBirth">
+          <div *ngIf="submitted && userForm.controls['dateOfBirth']?.errors" class="error">
+            <small class="form-text text-warning" *ngIf="userForm.controls['dateOfBirth']?.errors?.['required']">Date of
+              birth is required!</small>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="inputPassword">Password</label>
+          <input type="password" name="password" class="form-control" id="inputPassword" required
+                 placeholder="Enter password" [(ngModel)]="newUser.password">
+          <div *ngIf="submitted && userForm.controls['password']?.errors" class="error">
+            <small class="form-text text-warning" *ngIf="userForm.controls['password']?.errors?.['required']">Password
+              is required!</small>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="inputAdmin">Admin</label>
+          <select name="admin" class="form-control" id="inputAdmin" [(ngModel)]="newUser.admin">
+            <option [ngValue]="true">Yes</option>
+            <option [ngValue]="false">No</option>
+          </select>
+        </div>
+
+        <button type="submit" class="btn btn-success float-right">Add User</button>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-secondary" (click)="modal.dismiss('close')">Close</button>
+    </div>
+  </ng-template>
+</div>

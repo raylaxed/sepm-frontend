@@ -1,0 +1,77 @@
+<div class="artist-detail" *ngIf="artist">
+  <div class="row">
+    <!-- Left Card - Artist Information -->
+    <div class="col-md-6">
+      <div class="card info-card">
+        <img
+          [src]="artist.imageUrl || 'http://localhost:8080/static/images/default_image.png'"
+          class="card-img-top artist-image"
+          [alt]="artist.name"
+        />
+        <div class="card-body">
+          <div class="title-row">
+            <h2 class="card-title">{{ artist.name }}</h2>
+          </div>
+
+          <p class="card-text summary">
+            <strong>{{ artist.summary }}</strong>
+          </p>
+
+          <div class="description-container">
+            <p class="card-text description" [class.expanded]="isDescriptionExpanded">
+              {{ artist.text }}
+            </p>
+            <button class="btn btn-link expand-btn" (click)="toggleDescription()">
+              {{ isDescriptionExpanded ? 'Read less' : 'Read more' }}
+              <i class="bi" [class.bi-chevron-down]="!isDescriptionExpanded" [class.bi-chevron-up]="isDescriptionExpanded"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Card - Shows -->
+    <div class="col-md-6">
+      <div class="card shows-card">
+        <div class="card-body">
+          <h3 class="card-title">Upcoming Shows</h3>
+
+          <div *ngIf="artist.shows && artist.shows.length > 0" class="shows-list">
+            <div class="show-item"
+                 *ngFor="let show of artist.shows"
+                 (click)="!isShowSoldOut(show) && goToShowDetail(show.id)"
+                 [class.sold-out]="isShowSoldOut(show)">
+              <div class="sold-out-overlay" *ngIf="isShowSoldOut(show)">
+                <span class="sold-out-text">SOLD OUT</span>
+              </div>
+              <img [src]="show.imageUrl || 'http://localhost:8080/static/images/default_image.png'"
+                   [alt]="show.name"
+                   class="show-image">
+              <div class="show-info">
+                <div class="show-header">
+                  <div class="title-section">
+                    <div class="title-row">
+                      <h4 class="show-name">{{ show.name }}</h4>
+                    </div>
+                    <div class="show-datetime">
+                      <span class="date">{{ show.date | date }}</span>
+                      <span class="time">{{ formatTime(show.time) }}</span>
+                    </div>
+                  </div>
+                  <div class="show-type">
+                    <span class="badge bg-primary">{{ show.eventType }}</span>
+                  </div>
+                </div>
+                <p class="show-summary">{{ show.summary }}</p>
+              </div>
+            </div>
+          </div>
+
+          <div *ngIf="!artist.shows || artist.shows.length === 0" class="text-center py-3">
+            <p class="mb-0">No upcoming shows for this artist.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

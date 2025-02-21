@@ -1,0 +1,104 @@
+<div class="hall-container">
+  <div class="hall-content">
+    <!-- Canvas Section -->
+    <div class="canvas-section">
+      <canvas #displayCanvas [width]="canvasWidth" [height]="canvasHeight"></canvas>
+    </div>
+
+    <!-- Selected Tickets Section (Below Canvas) -->
+    <div class="tickets-section" *ngIf="hall">
+      <div class="control-panel">
+        <div *ngIf="selectedTickets.length + getTotalStandingTickets() > 0" class="warning-text">
+          {{ (selectedTickets.length + getTotalStandingTickets()) > 1 ? 'Tickets are not reserved yet.' : 'Ticket is not reserved yet.' }}
+        </div>
+        
+        <!-- Selected Seats -->
+        <div class="selected-items" *ngIf="selectedTickets.length > 0">
+          <h4>Selected Seats:</h4>
+          <div class="items-grid">
+            <div *ngFor="let ticket of selectedTickets" class="seat-item">
+              <span>Sector {{getSectorDetails(ticket.seatId)}} Seat {{getSeatDetails(ticket.seatId)}}</span>
+              <div class="price-actions">
+                <span class="price">€{{ticket.price}}</span>
+                <button class="btn-close" (click)="removeTicket(ticket)" aria-label="Remove ticket"></button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Selected Standing Tickets -->
+        <div class="selected-items" *ngIf="selectedStandingSectors.length > 0">
+          <h4>Selected Standing Tickets:</h4>
+          <div class="items-grid">
+            <div *ngFor="let standing of selectedStandingSectors" class="standing-item">
+              <div class="standing-info">
+                <span>Standing Sector {{standing.sectorName}}</span>
+                <div class="quantity-control">
+                  <button class="btn btn-sm btn-outline-secondary" (click)="updateStandingQuantity(standing.sectorId, false)">-</button>
+                  <span class="quantity">{{standing.quantity}}</span>
+                  <button class="btn btn-sm btn-outline-secondary" (click)="updateStandingQuantity(standing.sectorId, true)">+</button>
+                </div>
+              </div>
+              <div class="price-actions">
+                <span class="price">€{{Math.round(getStandingTicketPrice(standing.sectorId)*standing.quantity * 100) / 100 | number: '1.2-2'}}</span>
+                <button class="btn-close" (click)="removeStandingTicket(standing.sectorId)" aria-label="Remove standing ticket"></button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Price Summary and Actions -->
+        <div class="checkout-section" *ngIf="selectedTickets.length > 0 || selectedStandingSectors.length > 0">
+          <div class="price-summary">
+            <div class="total-price">
+              <span>Total Price:</span>
+              <span class="amount">€{{calculateTotalPrice() | number: '1.2-2'}}</span>
+            </div>
+          </div>
+          <div class="action-buttons">
+            <button class="btn btn-outline-primary" 
+                    (click)="openConfirmDialog()"
+                    [disabled]="selectedTickets.length === 0 && selectedStandingSectors.length === 0 || isReserving">
+              {{ isReserving ? 'Reserving...' : 'Reserve Tickets' }}
+            </button>
+            <button class="btn btn-primary" 
+                    (click)="addToCart()"
+                    [disabled]="selectedTickets.length === 0 && selectedStandingSectors.length === 0 || isAddingToCart">
+              {{ isAddingToCart ? 'Adding...' : 'Add to Cart' }}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Dialogs -->
+<app-confirm-dialog
+  *ngIf="showConfirmDialog"
+  [mode]="ConfirmationDialogMode.confirm"
+  [message]="message"
+  (confirm)="reserveTickets()"
+  (cancel)="showConfirmDialog = false">
+</app-confirm-dialog>
+
+<app-confirm-dialog
+  *ngIf="showConflictDialog"
+  [mode]="ConfirmationDialogMode.alert"
+  [message]="conflictMessage"
+  (confirm)="closeConflictDialog()"
+  (cancel)="closeConflictDialog()">
+</app-confirm-dialog>
+
+<!-- New Reservation Success Dialog -->
+<app-confirm-dialog
+  *ngIf="showReservationSuccessDialog"
+  [mode]="ConfirmationDialogMode.alert"
+  [message]="'Your tickets have been successfully reserved! You can find all of your reserved tickets in your profile page. You can pick up your tickets at the box office by providing the reservation number and your email address.'"
+  [title]="'Your Reservation Number: #' + reservationNumber"
+  [confirmText]="'Go to Profile Page'"
+  (confirm)="closeReservationSuccessDialog()"
+  (cancel)="closeReservationSuccessDialog()">
+</app-confirm-dialog>
+
+

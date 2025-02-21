@@ -1,0 +1,85 @@
+<div class="container mt-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Top Events by Category</h2>
+    <div class="dropdown">
+      <button class="btn btn-outline-primary" (click)="toggleDropdown()">
+        Categories
+        <span class="ms-1 badge bg-primary">{{ selectedCategories.size }}</span>
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-chevron-down ms-2" viewBox="0 0 16 16">
+          <path fill-rule="evenodd" d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z"/>
+        </svg>
+      </button>
+      <div class="dropdown-menu p-3" [class.show]="isDropdownOpen" style="min-width: 250px;">
+        <div class="d-flex justify-content-between mb-2">
+          <button class="btn btn-sm btn-link" (click)="selectAllCategories($event)">Select All</button>
+          <button class="btn btn-sm btn-link" (click)="deselectAllCategories($event)">Deselect All</button>
+        </div>
+        <div class="dropdown-divider"></div>
+        <div class="category-options">
+          <div class="form-check" *ngFor="let type of eventTypes">
+            <input class="form-check-input" type="checkbox" [id]="'category-' + type"
+                   [checked]="isCategorySelected(type)"
+                   (click)="toggleCategory(type, $event)">
+            <label class="form-check-label" [for]="'category-' + type">
+              {{ type }}
+            </label>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div *ngFor="let type of getVisibleEventTypes()" class="category-section mb-5">
+    <div class="d-flex align-items-center mb-3">
+      <h3 class="mb-0 me-2">{{ type }}</h3>
+    </div>
+    
+    <div class="position-relative">
+      <!-- Navigation Arrows -->
+      <button class="nav-arrow nav-prev" (click)="scrollEvents(type, 'prev')" *ngIf="currentIndex[type] > 0">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
+          <path fill="currentColor" d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/>
+        </svg>
+      </button>
+      
+      <div class="events-row">
+        <div class="events-container" [id]="'events-' + type">
+          <div class="row flex-nowrap"
+               [style.transform]="'translateX(' + (-400 * currentIndex[type]) + 'px)'"
+               [style.width]="'fit-content'">
+            <div *ngFor="let event of getEventsByType(type); let i = index" 
+                 class="col-auto event-wrapper">
+              <div class="card event-card" (click)="goToEventDetail(event.id)">
+                <div class="card-layout">
+                  <div class="image-section">
+                    <div class="rank-label">#{{ i + 1 }}</div>
+                    <img [src]="event.imageUrl || 'http://localhost:8080/static/images/default_image.png'"
+                         [alt]="event.name"
+                         class="card-img event-image">
+                  </div>
+                  <div class="content-section">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                      <div class="event-date">{{ formatDate(event.durationFrom) }} - {{ formatDate(event.durationTo) }}</div>
+                      <div class="event-type">
+                        <span class="badge bg-primary">{{ event.type }}</span>
+                      </div>
+                    </div>
+                    <h5 class="card-title">{{ event.name }}</h5>
+                    <p class="card-text">{{ event.summary }}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <button class="nav-arrow nav-next" (click)="scrollEvents(type, 'next')" 
+              *ngIf="hasMoreEvents(type)">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
+          <path fill="currentColor" d="M8.59 16.59L10 18l6-6-6-6-1.41 1.41L13.17 12z"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+</div>

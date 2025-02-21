@@ -1,0 +1,73 @@
+<div class="card-container">
+  <div class="container">
+    <div class="main-content">
+      <div class="hall-section">
+        <div class="search-container mb-3">
+          <div class="input-group">
+            <input 
+              type="text" 
+              class="form-control" 
+              placeholder="Search halls by name..." 
+              [(ngModel)]="searchTerm"
+              (input)="searchHalls()">
+            <button 
+              class="btn btn-outline-secondary" 
+              type="button"
+              (click)="searchTerm=''; searchHalls()">
+              Clear
+            </button>
+          </div>
+        </div>
+        
+        <div class="controls mb-3">
+          <button class="btn btn-outline-secondary" (click)="showPreviousHall()" [disabled]="currentDisplayIndex <= 0">Previous</button>
+          <span class="mx-2">{{filteredHalls[currentDisplayIndex]?.name}} ({{currentDisplayIndex + 1}} of {{filteredHalls.length}})</span>
+          <button class="btn btn-outline-secondary" (click)="showNextHall()" [disabled]="currentDisplayIndex >= filteredHalls.length - 1">Next</button>
+        </div>
+        
+        <div *ngIf="filteredHalls.length === 0" class="alert alert-info">
+          No halls found matching "{{searchTerm}}"
+        </div>
+        
+        <canvas #displayCanvas [width]="canvasWidth" [height]="canvasHeight"></canvas>
+        
+        <div class="mt-3 text-center">
+          <button class="btn btn-primary" (click)="selectCurrentHall()">Select This Hall</button>
+          <button class="btn btn-warning mx-2" (click)="editCurrentHall()">Edit Hall</button>
+          <button class="btn btn-secondary" (click)="openHallCreator()">Create New Hall</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Hall Creator Overlay -->
+<div class="overlay" *ngIf="showHallCreator" (click)="closeHallCreator()">
+  <div class="overlay-content" (click)="$event.stopPropagation()">
+    <div class="overlay-header">
+      <h3>Create New Hall</h3>
+      <button type="button" class="btn-close" (click)="closeHallCreator()"></button>
+    </div>
+    <div class="overlay-body">
+      <app-hall (hallCreated)="onHallCreated($event)"></app-hall>
+    </div>
+  </div>
+</div>
+
+<!-- Hall Editor Overlay -->
+<div class="overlay" *ngIf="showHallEditor" (click)="closeHallEditor()">
+  <div class="overlay-content" (click)="$event.stopPropagation()">
+    <div class="overlay-header">
+      <h3>Edit Hall</h3>
+      <button type="button" class="btn-close" (click)="closeHallEditor()"></button>
+    </div>
+    <div class="overlay-body">
+      <app-hall-edit 
+        *ngIf="selectedHallId" 
+        [hallId]="selectedHallId"
+        (hallEdited)="onHallEdited($event)">
+      </app-hall-edit>
+    </div>
+  </div>
+</div>
+

@@ -1,0 +1,15 @@
+<!-- src/app/components/show/show-create/hall-view/hall-view.component.html -->
+<canvas #displayCanvas></canvas>
+
+@if (showInputDialog) {
+  <app-input-dialog
+    [title]="'Set Price'"
+    [message]="message"
+    [inputLabel]="'Price'"
+    [inputType]="'number'"
+    [placeholder]="'Enter price...'"
+    [inputValue]="currentPrice"
+    (input)="updateSectorPrice(selectedSectorId, $event, isStandingSector)"
+    (cancel)="showInputDialog = false">
+  </app-input-dialog>
+}

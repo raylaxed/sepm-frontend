@@ -1,0 +1,82 @@
+<div class="pt-5">
+  <div class="row">
+    <div class="col-md-10 mx-auto">
+      <span class="anchor" id="formLogin"></span>
+
+      <div class="card">
+        <div class="card-header">
+          <h3 class="mb-0">Login</h3>
+        </div>
+
+        <div class="card-body">
+          <form class="form" [formGroup]="loginForm" (ngSubmit)="loginUser()">
+
+            <div class="form-group">
+              <label for="inputUsername">Username</label>
+              <input type="text" name="username" formControlName="username" class="form-control" id="inputUsername"
+                     aria-describedby="usernameHelp" placeholder="Enter username">
+              <div *ngIf="submitted && loginForm.controls.username.errors" class="error">
+                <small class="form-text text-warning" *ngIf="loginForm.controls.username.errors.required">Your username is
+                  required!
+                </small>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="password">Password</label>
+              <input type="password" name="password" formControlName="password" class="form-control" id="password"
+                     placeholder="Password">
+              <div *ngIf="submitted && loginForm.controls.password.errors" class="error">
+                <small class="form-text text-warning" *ngIf="loginForm.controls.password.errors.required">Your password
+                  is
+                  required!
+                </small>
+                <small class="form-text text-warning" *ngIf="loginForm.controls.password.errors.minlength">Your password
+                  must be at least 8 characters long!
+                </small>
+              </div>
+            </div>
+            <a href="javascript:void(0)" class="text-decoration-none mb-3 d-block" (click)="openResetPasswordModal(resetPasswordModal)">Forgot Password?</a>
+
+            <button type="submit" class="btn btn-success w-100">Login</button>
+
+          </form>
+        </div>
+
+        <div class="card-footer text-center">
+          <p class="mb-0">Don't have an account? <a routerLink="/registration">Sign up</a></p>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<ng-template #resetPasswordModal let-modal>
+  <div class="modal-header">
+    <h5 class="modal-title">Reset User Password</h5>
+    <button type="button" class="close" (click)="modal.dismiss('X')" aria-label="Close">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+    <form (ngSubmit)="resetPassword(resetPasswordForm)" #resetPasswordForm="ngForm">
+      <div class="form-group">
+        <label for="inputEmail">Email</label>
+        <input type="email" name="email" class="form-control" id="inputEmail" required
+               aria-describedby="emailHelp" placeholder="Enter user email" [(ngModel)]="resetEmail">
+        <div *ngIf="submitted && resetPasswordForm.controls.email.errors" class="error">
+          <small class="form-text text-warning" *ngIf="resetPasswordForm.controls.email.errors.required">Email is
+            required!</small>
+          <small class="form-text text-warning" *ngIf="resetPasswordForm.controls.email.errors.email">Invalid email
+            format!</small>
+        </div>
+      </div>
+      <button type="submit" class="btn btn-primary float-right">Reset Password</button>
+    </form>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-secondary" (click)="modal.dismiss('close')">Close</button>
+  </div>
+</ng-template>

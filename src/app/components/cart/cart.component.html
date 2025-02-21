@@ -1,0 +1,92 @@
+<div class="cart-container">
+  <!-- Remove tab navigation since we only have cart now -->
+  <div class="tickets-container">
+    <div *ngIf="cartTickets.length === 0" class="empty-cart">
+      <p>Your cart is empty</p>
+    </div>
+    <div class="inCart-tickets-info" *ngIf="cartTickets.length > 0">
+      <p>Tickets in your cart are reserved for 10 minutes. After this time, they will be automatically removed to give other customers the chance to purchase them.</p>
+    </div>
+
+    <div *ngIf="cartTickets.length > 0" class="cart-layout">
+      <div class="tickets-list">
+        <div *ngFor="let ticket of cartTickets" class="ticket-card">
+          <div class="ticket-image">
+            <img [src]="getShowImage(ticket.showId) || 'http://localhost:8080/static/images/default_image.png'" alt="Show image" height="100">
+          </div>
+          <div class="ticket-info">
+            <h3>{{getShowName(ticket.showId)}}</h3>
+            <p>Date: {{getShowDate(ticket.showId) | date:'mediumDate'}}</p>
+            <p>
+              {{ticket.seatId ? 'Sector: ' + getSectorName(ticket.seatId) + ' Seat: ' + getSeatRow(ticket.seatId) + '-' + getSeatColumn(ticket.seatId) : 'Standing Sector: ' + getStandingSectorName(ticket.standingSectorId)}}
+            </p>
+            <p class="price">Price: €{{ticket.price}}</p>
+            <p class="timer" [class.expiring]="getTimeLeft(ticket) <= 180">
+              Time left to purchase: {{formatTimeLeft(getTimeLeft(ticket))}}
+            </p>
+          </div>
+          <div class="ticket-actions">
+            <button class="btn btn-outline-primary" (click)="goToShowDetail(ticket.showId)">
+              Buy More Tickets
+            </button>
+          </div>
+          <button type="button" class="btn btn-close" (click)="removeFromCart(ticket)" aria-label="Close"></button>
+        </div>
+      </div>
+
+      <div class="cart-summary">
+        <div class="total-price">
+          <span>Total:</span>
+          <span>€{{ calculateTotalPrice() | number: '1.2-2' }}</span>
+        </div>
+
+        <div class="payment-form">
+          <div class="form-group">
+            <label>Card Holder Name</label>
+            <input type="text" 
+                   class="form-control mb-3" 
+                   [(ngModel)]="paymentDetails.cardHolder" 
+                   placeholder="Name on card">
+                   
+            <label>Card Number</label>
+            <div id="card-number-element" class="form-control mb-3">
+              <!-- Stripe Card Number Element -->
+            </div>
+
+            <div class="row">
+              <div class="col-6">
+                <label>Expiry Date</label>
+                <div id="card-expiry-element" class="form-control mb-3">
+                  <!-- Stripe Expiry Element -->
+                </div>
+              </div>
+              <div class="col-6">
+                <label>CVC</label>
+                <div id="card-cvc-element" class="form-control mb-3">
+                  <!-- Stripe CVC Element -->
+                </div>
+              </div>
+            </div>
+
+            <div id="card-errors" role="alert" class="text-danger mt-2"></div>
+          </div>
+        </div>
+        
+        <button class="btn btn-primary purchase-button"
+                (click)="confirmPurchase()"
+                [disabled]="loading">
+          {{ loading ? 'Processing...' : 'Purchase Order' }}
+        </button>
+        
+      </div>
+    </div>
+  </div>
+</div>
+
+<app-confirm-dialog
+  *ngIf="showConfirmDialog"
+  [message]="confirmDialogMessage"
+  [mode]="confirmDialogMode"
+  (confirm)="onConfirmDialog()"
+  (cancel)="onCancelDialog()">
+</app-confirm-dialog>

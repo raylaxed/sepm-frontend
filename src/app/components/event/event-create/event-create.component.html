@@ -1,0 +1,131 @@
+<div class="mt-4 container">
+  <div class="card">
+    <div class="card-header">
+      <h5>Create Event</h5>
+    </div>
+    <div class="card-body">
+      <form #eventForm="ngForm" (ngSubmit)="onSubmit()">
+
+        <!-- Name -->
+        <div class="form-group">
+          <label for="inputName">Name</label>
+          <input type="text" id="inputName" name="name" class="form-control" required
+                 placeholder="Enter event name" [(ngModel)]="event.name">
+        </div>
+
+        <!-- Summary -->
+        <div class="form-group">
+          <label for="inputSummary">Summary</label>
+          <textarea id="inputSummary" name="summary" class="form-control" rows="3" required
+                    placeholder="Enter summary" [(ngModel)]="event.summary"></textarea>
+        </div>
+
+        <!-- Text -->
+        <div class="form-group">
+          <label for="inputText">Text</label>
+          <textarea id="inputText" name="text" class="form-control" rows="6" required
+                    placeholder="Enter detailed description" [(ngModel)]="event.text"></textarea>
+        </div>
+
+        <!-- Duration -->
+        <div class="form-group">
+          <label>Event Duration</label>
+          <div class="row">
+            <div class="col-md-6">
+              <label for="inputDurationFrom">From</label>
+              <input type="date"
+                     id="inputDurationFrom"
+                     name="durationFrom"
+                     class="form-control"
+                     required
+                     [(ngModel)]="event.durationFrom"
+                     (ngModelChange)="onDurationChange()">
+            </div>
+            <div class="col-md-6">
+              <label for="inputDurationTo">To</label>
+              <input type="date"
+                     id="inputDurationTo"
+                     name="durationTo"
+                     class="form-control"
+                     required
+                     [(ngModel)]="event.durationTo"
+                     (ngModelChange)="onDurationChange()">
+            </div>
+          </div>
+        </div>
+
+        <!-- Type -->
+        <div class="form-group">
+          <label for="eventType">Type</label>
+          <select id="eventType" name="type" class="form-control" required [(ngModel)]="event.type">
+            <option value="" disabled>Select event type</option>
+            <option *ngFor="let type of eventTypes" [value]="type">{{ type }}</option>
+          </select>
+        </div>
+
+        <!-- Image -->
+        <div class="form-group">
+          <label for="inputImage">Image</label>
+
+          <!-- File Input: Shown only when no image is selected -->
+          <div *ngIf="!selectedImagePreview">
+            <input type="file" id="inputImage" name="image" class="form-control" required accept="image/*"
+                   (change)="onImageSelected($event)">
+          </div>
+
+          <!-- Selected Image Preview: Shown only when an image is selected -->
+          <div *ngIf="selectedImagePreview" class="d-flex align-items-center">
+            <img [src]="selectedImagePreview" alt="Selected Image" class="img-thumbnail mr-3" style="max-height: 100px;">
+            <button type="button" class="btn btn-danger" (click)="removeImage()">Remove Image</button>
+          </div>
+        </div>
+
+        <!-- Shows Selection Section -->
+        <div class="form-group">
+          <label>Select Shows</label>
+          <div class="shows-selection-container">
+            <!-- Message when no dates selected -->
+            <div *ngIf="!event.durationFrom || !event.durationTo" class="text-center text-muted p-3">
+              Please select the start and end of the duration to see available shows
+            </div>
+
+            <!-- Shows content only visible when dates are selected -->
+            <div *ngIf="event.durationFrom && event.durationTo">
+              <!-- Search input for shows -->
+              <div class="show-search mb-3">
+                <input
+                  type="text"
+                  class="form-control"
+                  placeholder="Search shows..."
+                  [(ngModel)]="showSearchQuery"
+                  name="showSearch"
+                  (ngModelChange)="loadAvailableShows()"
+                >
+              </div>
+
+              <!-- Shows grid -->
+              <div class="shows-grid">
+                <div *ngFor="let show of availableShows"
+                     class="show-item"
+                     [class.selected]="selectedShowIds.includes(show.id)"
+                     (click)="toggleShowSelection(show.id)">
+                  <div class="show-content">
+                    <strong>{{ show.name }}</strong><br>
+                    <small>{{ show.date | date }} at {{ show.time }}</small>
+                  </div>
+                </div>
+
+                <div *ngIf="availableShows.length === 0" class="text-center text-muted p-3">
+                  No shows available in selected date range
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Submit Button -->
+        <button type="submit" class="btn btn-success float-right">Add Event</button>
+      </form>
+    </div>
+  </div>
+</div>

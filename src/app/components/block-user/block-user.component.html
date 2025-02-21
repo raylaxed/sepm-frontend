@@ -1,0 +1,63 @@
+<div class="block-user">
+  <button class="btn btn-primary mb-3 mt-3" (click)="openBlockUserModal(blockUserModal)">
+    Block a User
+  </button>
+
+  <h2>Blocked Users</h2>
+  <div *ngIf="blockedUsers.length === 0">No blocked users.</div>
+  <table *ngIf="blockedUsers.length > 0" class="table table-striped">
+    <thead>
+    <tr>
+      <th>Email</th>
+      <th>Actions</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr *ngFor="let user of blockedUsers">
+      <td>{{ user.email }}</td>
+      <td>
+        <button class="btn btn-danger" (click)="openUnblockUserModal(unblockUserModal, user.email)">Unblock</button>
+      </td>
+    </tr>
+    </tbody>
+  </table>
+
+  <!-- Block User Modal -->
+  <ng-template #blockUserModal let-modal>
+    <div class="modal-header">
+      <h5 class="modal-title">Block User</h5>
+      <button type="button" class="close" (click)="modal.dismiss('X')" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <form #blockUserForm="ngForm">
+        <div class="form-group">
+          <label for="blockEmail">Email</label>
+          <input type="email" name="email" class="form-control" id="blockEmail" required
+                 placeholder="Enter email" [(ngModel)]="userEmail" #blockEmail="ngModel">
+          <div *ngIf="submitted && blockEmail.errors" class="error">
+            <small class="form-text text-warning" *ngIf="blockEmail.errors?.['required']">Email is required!</small>
+          </div>
+        </div>
+        <button type="button" (click)="blockUser()" class="btn btn-danger">Block User</button>
+        <button type="button" class="btn btn-secondary" (click)="modal.dismiss('cancel')">Cancel</button>
+      </form>
+    </div>
+  </ng-template>
+
+  <!-- Unblock User Modal -->
+  <ng-template #unblockUserModal let-modal>
+    <div class="modal-header">
+      <h5 class="modal-title">Unblock User</h5>
+      <button type="button" class="close" (click)="modal.dismiss('X')" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <p>Are you sure you want to unblock this user?</p>
+      <button type="button" class="btn btn-danger" (click)="confirmUnblockUser()">Yes</button>
+      <button type="button" class="btn btn-secondary" (click)="modal.dismiss('cancel')">No</button>
+    </div>
+  </ng-template>
+</div>

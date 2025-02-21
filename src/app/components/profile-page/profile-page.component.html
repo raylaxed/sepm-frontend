@@ -1,0 +1,284 @@
+<div class="page-container">
+  <div class="left-column">
+    <div class="profile-container">
+      <h2>Profile Information</h2>
+
+      <div class="profile-info">
+        <form [formGroup]="editForm" *ngIf="isEditing">
+          <div class="info-group">
+            <label>First Name:</label>
+            <input type="text" class="form-control" formControlName="firstName">
+          </div>
+
+          <div class="info-group">
+            <label>Last Name:</label>
+            <input type="text" class="form-control" formControlName="lastName">
+          </div>
+
+          <div class="info-group">
+            <label>Email:</label>
+            <input type="email" class="form-control" formControlName="email">
+          </div>
+
+          <div class="info-group">
+            <label>Address:</label>
+            <input type="text" class="form-control" formControlName="address">
+          </div>
+
+          <div class="info-group">
+            <label>Date of Birth:</label>
+            <input type="date" class="form-control" formControlName="dateOfBirth">
+          </div>
+
+          <div class="profile-actions">
+            <button
+              class="btn btn-icon btn-success"
+              (click)="saveChanges()"
+              data-bs-toggle="tooltip"
+              data-bs-placement="top"
+              data-bs-title="Save your profile changes">
+              <i class="bi bi-check-lg"></i>
+            </button>
+            <button
+              class="btn btn-icon btn-secondary"
+              (click)="cancelEdit()"
+              data-bs-toggle="tooltip"
+              data-bs-placement="top"
+              data-bs-title="Discard changes and return to profile view">
+              <i class="bi bi-x-lg"></i>
+            </button>
+          </div>
+        </form>
+
+        <div *ngIf="!isEditing">
+          <div class="info-group">
+            <label>First Name:</label>
+            <p>{{userData.firstName}}</p>
+          </div>
+
+          <div class="info-group">
+            <label>Last Name:</label>
+            <p>{{userData.lastName}}</p>
+          </div>
+
+          <div class="info-group">
+            <label>Email:</label>
+            <p>{{userData.email}}</p>
+          </div>
+
+          <div class="info-group">
+            <label>Address:</label>
+            <p>{{userData.address}}</p>
+          </div>
+
+          <div class="info-group">
+            <label>Date of Birth:</label>
+            <p>{{userData.dateOfBirth}}</p>
+          </div>
+
+          <div class="profile-actions">
+            <button
+              class="btn btn-icon"
+              (click)="toggleEdit()"
+              data-bs-toggle="tooltip"
+              data-bs-placement="top"
+              data-bs-title="Edit your profile information">
+              <i class="bi bi-pencil-square"></i>
+            </button>
+            <button
+              class="btn btn-icon btn-danger"
+              (click)="deleteAccount()"
+              data-bs-toggle="tooltip"
+              data-bs-placement="top"
+              data-bs-title="Permanently delete your account">
+              <i class="bi bi-trash"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="reserved-tickets-container">
+      <h2>Reserved Tickets</h2>
+      <div class="reserved-tickets-info" *ngIf="reservedTickets?.length > 0">
+        <p>Tickets will be reserved up to 30 minutes before the start of the show. You can pick up a reserved ticket at the box office by providing the reservation number and your email address until then, otherwise, the reservation is cancelled.</p>
+      </div>
+      <div class="tickets-list">
+        <div *ngIf="reservedTickets?.length === 0" class="no-tickets">
+          No reserved tickets found
+        </div>
+        <div *ngFor="let ticket of reservedTickets" class="ticket-card">
+          <div class="ticket-image">
+            <img [src]="getShowImage(ticket.showId) || 'http://localhost:8080/static/images/default_image.png'" alt="Show image" height="100">
+          </div>
+          <div class="ticket-info">
+            <h3>{{ticket.show?.name}}</h3>
+            <p>Date: {{ticket.show?.date | date:'mediumDate'}}</p>
+            <p>
+              {{ticket.seatId ? 'Sector: ' + ticket.seat?.sector + ' Seat: ' + ticket.seat?.rowSeat + '-' + ticket.seat?.columnSeat : 'Standing Sector: ' + ticket.standingSector?.sectorName}}
+            </p>
+            <p class="price">Price: €{{ticket.price | number: '1.2-2'}}</p>
+            <p>Your reservation number: #{{ticket.id}}</p>
+          </div>
+          <div class="ticket-actions">
+            <button
+              class="btn btn-icon btn-danger"
+              (click)="cancelReservation(ticket.id)"
+              *ngIf="!ticket.cancelled"
+              data-bs-toggle="tooltip"
+              data-bs-placement="top"
+              data-bs-title="Cancel this reservation">
+              <i class="bi bi-trash"></i>
+            </button>
+            <button
+              class="btn btn-icon btn-success"
+              (click)="addToCart(ticket)"
+              *ngIf="!ticket.cancelled && !ticketsInCart.has(ticket.id)"
+              data-bs-toggle="tooltip"
+              data-bs-placement="top"
+              data-bs-title="Add ticket to cart">
+              <i class="bi bi-cart-plus"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="orders-container">
+    <h2>Purchase History</h2>
+    <div class="orders-list">
+      <div *ngIf="purchasedOrders?.length === 0" class="no-orders">
+        No orders found
+      </div>
+      <div *ngFor="let order of purchasedOrders" class="order-item">
+        <div class="order-header">
+          <div class="order-info">
+            <span class="order-date">Order Date: {{order.orderDate | date:'medium'}}</span>
+            <span class="order-total">Total: €{{order.total | number: '1.2-2'}}</span>
+          </div>
+          <div class="order-actions">
+            <button
+              class="btn btn-icon"
+              (click)="downloadOrderPdf(order.id)"
+              data-bs-toggle="tooltip"
+              data-bs-placement="top"
+              data-bs-title="Download PDF of the entire order">
+              <i class="bi bi-file-pdf"></i>
+            </button>
+            <button
+              class="btn btn-icon btn-danger"
+              (click)="refundOrder(order.id)"
+              *ngIf="isOrderRefundable(order)"
+              data-bs-toggle="tooltip"
+              data-bs-placement="top"
+              data-bs-title="Refund this entire order">
+              <i class="bi bi-trash"></i>
+            </button>
+          </div>
+        </div>
+
+        <div class="tickets-list">
+          <div *ngFor="let ticket of order.tickets" class="ticket-item" [class.past-show]="isPastShow(ticket.show?.date, ticket.show?.time)">
+            <div class="ticket-details">
+              <div class="show-info">
+                <h4>{{ticket.show?.name}}</h4>
+              </div>
+
+              <div class="seat-price-container">
+                <div class="info-row">
+                  <div class="seat-info">
+                    <div class="seat-label">Sector:</div>
+                    <ng-container *ngIf="ticket.seatId">
+                      <div class="seat-line">{{ticket.seat?.sector}}</div>
+                    </ng-container>
+                    <ng-container *ngIf="ticket.standingSectorId">
+                      <div class="seat-line">{{ticket.standingSector?.sectorName}}</div>
+                    </ng-container>
+                  </div>
+
+                  <div class="price-info">
+                    <span class="price-label">Price:</span>
+                    <span class="price-value">€{{ticket.price | number: '1.2-2'}}</span>
+                  </div>
+                </div>
+
+                <div class="seat-details">
+                  <ng-container *ngIf="ticket.seatId">
+                    <div class="seat-line">Row {{ticket.seat?.rowSeat}}</div>
+                    <div class="seat-line">Seat {{ticket.seat?.columnSeat}}</div>
+                  </ng-container>
+                  <ng-container *ngIf="ticket.standingSectorId">
+                    <div class="seat-line">Standing Area</div>
+                  </ng-container>
+                </div>
+              </div>
+
+              <div class="location-info">
+                <div class="info-and-action">
+                  <div class="info-content">
+                    <p class="show-time">{{ticket.show?.date | date:'mediumDate'}} {{ticket.show?.time}}</p>
+                    <div class="venue-info">
+                      <i class="bi bi-geo-alt"></i>
+                      {{ticket.show?.venue?.name}}, {{ticket.show?.venue?.street}}, {{ticket.show?.venue?.city}}
+                    </div>
+                  </div>
+                  <div class="action-buttons">
+                    <button
+                      class="btn btn-icon"
+                      (click)="downloadTicketPdf(ticket.id)"
+                      data-bs-toggle="tooltip"
+                      data-bs-placement="top"
+                      data-bs-title="Download PDF of this individual ticket">
+                      <i class="bi bi-file-pdf"></i>
+                    </button>
+
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="past-show-overlay" *ngIf="isPastShow(ticket.show?.date, ticket.show?.time)">
+              <span>Past Show</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="cancelled-orders-container">
+    <h2>Cancelled Orders</h2>
+    <div class="orders-list">
+      <div *ngIf="cancelledOrders?.length === 0" class="no-orders">
+        No cancelled orders found
+      </div>
+      <div *ngFor="let order of cancelledOrders" class="order-item">
+        <div class="order-header">
+          <div class="order-info">
+            <span class="order-date">Order Date: {{order.orderDate | date:'medium'}}</span>
+            <span class="order-total">Total: €{{order.total | number: '1.2-2'}}</span>
+          </div>
+          <div class="order-actions">
+            <button
+              class="btn btn-icon"
+              (click)="downloadCancellationInvoicePdf(order.cancellationInvoiceId, userData.id)"
+              data-bs-toggle="tooltip"
+              data-bs-placement="top"
+              data-bs-title="Download cancellation invoice PDF">
+              <i class="bi bi-file-pdf"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<app-confirm-dialog
+  *ngIf="showConfirmDialog"
+  [message]="confirmDialogMessage"
+  [mode]="confirmDialogMode"
+  (confirm)="onConfirmDialog()"
+  (cancel)="onCancelDialog()">
+</app-confirm-dialog>

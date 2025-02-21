@@ -1,0 +1,98 @@
+<div class="filter-section card p-3 mb-4">
+    <h2 class="card-title mb-3">Filter Artists</h2>
+    <form class="filter-form" (ngSubmit)="applyFilters()">
+        <div class="row">
+            <div class="col-md-3 mb-3">
+                <label for="artistName" class="form-label">Artist Name</label>
+                <input type="text"
+                       id="artistName"
+                       class="form-control"
+                       placeholder="Filter by name"
+                       [(ngModel)]="filters.name"
+                       name="name"
+                />
+            </div>
+
+            <div class="col-auto mb-3">
+                <label class="form-label invisible">Apply</label>
+                <button type="submit"
+                        class="btn btn-primary d-block">
+                    Apply Filter
+                </button>
+            </div>
+        </div>
+    </form>
+</div>
+
+<div class="row g-4">
+    <div *ngFor="let artist of displayedArtists" class="col-12 col-md-6 col-lg-3">
+        <div class="card artist-card h-100" (click)="goToArtistDetail(artist.id)">
+            <div class="card-layout">
+                <div class="image-section">
+                    <img [src]="artist.imageUrl || 'http://localhost:8080/static/images/default_image.png'"
+                         [alt]="artist.name"
+                         class="card-img artist-image">
+                </div>
+                <div class="content-section">
+                    <h5 class="card-title">{{ artist.name }}</h5>
+                    <p class="card-text" *ngIf="artist.firstName || artist.lastName">
+                        {{ artist.firstName }} {{ artist.lastName }}
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<nav aria-label="Page navigation" class="mt-4" *ngIf="totalPages > 1">
+    <ul class="pagination justify-content-center gap-2">
+        <li class="page-item" [class.disabled]="currentPage === 1">
+            <a class="page-link rounded-pill"
+               (click)="onPageChange(currentPage - 1)"
+               role="button"
+               [class.text-muted]="currentPage === 1">
+                &laquo; Previous
+            </a>
+        </li>
+
+        <li class="page-item" *ngIf="currentPage > 2">
+            <a class="page-link rounded-pill" (click)="onPageChange(1)" role="button">1</a>
+        </li>
+
+        <li class="page-item disabled" *ngIf="currentPage > 3">
+            <span class="page-link border-0">...</span>
+        </li>
+
+        <li class="page-item" *ngFor="let page of pages"
+            [class.active]="page === currentPage"
+            [class.d-none]="page < currentPage - 1 || page > currentPage + 1"
+            [class.rounded-pill]="page === currentPage">
+            <a class="page-link rounded-pill" (click)="onPageChange(page)" role="button">{{ page }}</a>
+        </li>
+
+        <li class="page-item disabled" *ngIf="currentPage < totalPages - 2">
+            <span class="page-link border-0">...</span>
+        </li>
+
+        <li class="page-item" *ngIf="currentPage < totalPages - 1">
+            <a class="page-link rounded-pill" (click)="onPageChange(totalPages)" role="button">{{ totalPages }}</a>
+        </li>
+
+        <li class="page-item" [class.disabled]="currentPage === totalPages">
+            <a class="page-link rounded-pill"
+               (click)="onPageChange(currentPage + 1)"
+               role="button"
+               [class.text-muted]="currentPage === totalPages">
+                Next &raquo;
+            </a>
+        </li>
+    </ul>
+</nav>
+
+<div class="text-center mt-3 text-muted">
+  <p *ngIf="allArtists.length > 0">
+    Showing {{ (currentPage - 1) * pageSize + 1 }} to
+      {{ Math.min(currentPage * pageSize, allArtists.length) }} of {{ allArtists.length }} artists
+  </p>
+  <p *ngIf="allArtists.length === 0">No artists available</p>
+</div>

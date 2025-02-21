@@ -1,0 +1,77 @@
+<div class="venue-detail" *ngIf="venue">
+  <div class="card mb-4">
+    <div class="card-body">
+      <div class="d-flex justify-content-between align-items-start">
+        <div>
+          <h2 class="card-title">{{ venue.name }}</h2>
+          <p class="card-text mt-3">
+            <strong>Address:</strong><br>
+            {{ venue.street }}<br>
+            {{ venue.postalCode }} {{ venue.city }}<br>
+            {{ venue.county }}
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Halls Section -->
+  <div class="card mb-4">
+    <div class="card-header">
+      <h3 class="mb-0">Halls and Shows</h3>
+    </div>
+    <div class="card-body">
+      <div *ngIf="halls && halls.length > 0" class="row g-4">
+        <div *ngFor="let hall of halls" class="col-12">
+          <div class="card hall-card">
+            <div class="card-body">
+              <h4 class="hall-title">{{ hall.name }}</h4>
+              <div class="hall-info mb-3">
+                <span class="me-3"><strong>Capacity:</strong> {{ hall.capacity }} seats</span>
+                <span class="me-3"><strong>Sectors:</strong> {{ hall.sectors?.length || 0 }}</span>
+                <span><strong>Standing Sectors:</strong> {{ hall.standingSectors?.length || 0 }}</span>
+              </div>
+
+              <!-- Shows for this hall -->
+              <div class="shows-section">
+                <h5 class="shows-title">Upcoming Shows</h5>
+                <div class="shows-list">
+                  <div *ngIf="hallShows.get(hall.id)?.length" class="row g-4">
+                    <div *ngFor="let show of hallShows.get(hall.id)" class="col-12 col-md-6 col-lg-3">
+                      <div class="card show-card" (click)="goToShow(show.id)">
+                        <div class="card-layout">
+                          <div class="image-section">
+                            <img [src]="show.imageUrl || 'http://localhost:8080/static/images/default_image.png'"
+                                 [alt]="show.name"
+                                 class="show-image">
+                          </div>
+                          <div class="content-section">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                              <div class="show-date">{{ show.date | date:'EEE, MMM d, y' }}</div>
+                              <div class="show-time">{{ formatTime(show.time) }}</div>
+                            </div>
+                            <h5 class="show-title">{{ show.name }}</h5>
+                            <p class="card-text">{{ show.summary }}</p>
+                            <div class="show-type">
+                              <span class="badge bg-primary">{{ show.eventType }}</span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div *ngIf="!hallShows.get(hall.id)?.length" class="no-shows">
+                    <p class="mb-0">No upcoming shows in this hall.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div *ngIf="!halls || halls.length === 0" class="text-center py-3">
+        <p class="mb-0">No halls available for this venue.</p>
+      </div>
+    </div>
+  </div>
+</div>

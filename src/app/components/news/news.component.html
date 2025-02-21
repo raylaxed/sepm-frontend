@@ -1,0 +1,243 @@
+<head>
+  <title></title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+</head>
+
+<div class="container mt-4">
+  <!-- Modified header section to use flexbox for alignment -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="mb-0" [innerHTML]="getNews() && !(seenNewsIds.length === getNews().length && displayMode === NewsDisplayMode.displayAllNews) 
+      ? 'Latest News' 
+      : 'There are no News for you, you are 100% up-to-date!<br>Please come back later :)'">
+    </h2>
+    
+    <div class="d-flex gap-3">
+      <button *ngIf="!isAdmin()" (click)="toggleDisplayMode()" type="button" class="btn btn-secondary">
+        {{ displayMode === NewsDisplayMode.displayUnseenNews ? 'Show all News' : 'Show unread News only' }}
+      </button>
+      
+      <button *ngIf="isAdmin()" type="button" class="btn btn-secondary"
+              (click)="openAddModal(newsAddModal)">
+        Add News Entry
+      </button>
+    </div>
+  </div>
+
+  <ng-template #newsAddModal let-modal>
+    <div class="modal-header">
+      <h5 class="modal-title">News</h5>
+    </div>
+    <div class="modal-body">
+      <form (ngSubmit)="addNews(newsForm)" #newsForm="ngForm">
+
+        <div class="form-group">
+          <label for="inputTitle">Title</label>
+          <input type="text" name="title" class="form-control" id="inputTitle" required
+                 aria-describedby="titleHelp" placeholder="Enter title" [(ngModel)]="currentNews.title"
+                 [readOnly]="currentNews.id">
+          <div *ngIf="submitted && newsForm.controls.title.errors" class="error">
+            <small class="form-text text-warning" *ngIf="newsForm.controls.title.errors.required">Your title
+              is
+              required!
+            </small>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="inputSummary">Summary</label>
+          <textarea rows="3" name="summary" class="form-control" id="inputSummary" required
+                    aria-describedby="summaryHelp" placeholder="Enter summary" [(ngModel)]="currentNews.summary"
+                    [readOnly]="currentNews.id"></textarea>
+          <div *ngIf="submitted && newsForm.controls.summary.errors" class="error">
+            <small class="form-text text-warning" *ngIf="newsForm.controls.summary.errors.required">Your
+              summary is
+              required!
+            </small>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="inputText">Text</label>
+          <textarea rows="6" name="text" class="form-control" id="inputText" required
+                    aria-describedby="textHelp" placeholder="Enter text" [(ngModel)]="currentNews.text"
+                    [readOnly]="currentNews.id"></textarea>
+          <div *ngIf="submitted && newsForm.controls.text.errors" class="error">
+            <small class="form-text text-warning" *ngIf="newsForm.controls.text.errors.required">Your text is
+              required!
+            </small>
+          </div>
+        </div>
+
+        <!-- Event Selection Section -->
+        <div class="form-group">
+          <label>Select Event</label>
+          <div class="shows-selection-container">
+
+            <div>
+              <!-- Search input for events -->
+              <div class="show-search mb-3">
+                <input
+                  type="text"
+                  class="form-control"
+                  placeholder="Search events..."
+                  [(ngModel)]="eventSearchQuery"
+                  name="eventSearch"
+                  (ngModelChange)="loadAvailableEvents()"
+                >
+              </div>
+
+              <!-- Events grid -->
+              <div class="shows-grid">
+                <div *ngFor="let event of availableEvents"
+                     class="show-item"
+                     [class.selected]="selectedEvent?.id === (event.id)"
+                     (click)="toggleEventSelection(event)">
+                  <div class="show-content">
+                    <strong>{{ event.name }}</strong><br>
+                    <small>{{event.type}}<br></small>
+                    <small>From {{ event.durationFrom | date }} to {{ event.durationTo }}</small>
+                  </div>
+                </div>
+
+                <div *ngIf="availableEvents.length === 0" class="text-center text-muted p-3">
+                  No events available
+
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+
+        <div class="form-group">
+          <label for="inputImages">Images</label>
+
+          <input type="file"
+                 name="images"
+                 class="form-control"
+                 id="inputImages"
+                 aria-describedby="imagesHelp"
+                 accept="image/*"
+                 multiple
+                 (change)="onImageSelected($event)">
+
+          <small id="imageHelp" class="form-text text-muted">
+            Upload images.
+          </small>
+          <div *ngIf="getPreviewUrls().length > 0" class="form-group">
+            <label>Preview</label>
+            <div class="preview-carousel">
+              <img [src]="previewUrls[imageIndex]" alt="Image Preview" class="img-thumbnail"/>
+              <div *ngIf="previewUrls.length > 1" class="carousel-buttons">
+                <button type="button" class="btn btn-sm btn-primary" (click)="previousImage()">
+                  <i class="bi bi-caret-left"></i>
+                  Previous
+                </button>
+                <button type="button" class="btn btn-primary" (click)="nextImage()">
+                  Next
+                  <i class="bi bi-caret-right"></i>
+                </button>
+              </div>
+            </div>
+            <p class="text-center">
+              Image {{ imageIndex + 1 }} of {{ previewUrls.length }}
+            </p>
+          </div>
+        </div>
+
+
+        <button type="button" (click)="addNews(newsForm)" id="add-msg" class="btn btn-success float-right"
+                *ngIf="!currentNews.id">Add News Entry
+        </button>
+
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-secondary" id="close-modal-btn"
+              (click)="clearForm(); modal.dismiss('close')">Close
+      </button>
+    </div>
+  </ng-template>
+
+  <div>
+    <div id="cardRow" class="row">
+
+      <div
+        class="col-xl-3 col-lg-4 p-2"
+        *ngFor="let news of getNews()"
+        [class.d-none]="seenNewsIds.includes(news.id)"
+      >
+        <div (click)="openNewsDetails(news.id)" class="card news-card h-100">
+          <div class="card-layout">
+            <div class="image-section">
+              <img [src]="news.previewImage || 'http://localhost:8080/static/images/default_image.png'"
+                   [alt]="news.title"
+                   class="card-img news-image">
+            </div>
+            <div class="content-section">
+              <small class="news-date">{{ news.publishedAt | date }}</small>
+              <h5 class="card-title">{{ news.title }}</h5>
+              <p class="card-text">{{ news.summary }}</p>
+              <small class="text-muted mt-auto">Click for more</small>
+              <div class="action-buttons">
+                <button *ngIf="!isAdmin()"
+                        class="btn responsive-primary-button"
+                        [class.btn-success]="seenNewsIds.includes(news.id)"
+                        [class.btn-secondary]="!seenNewsIds.includes(news.id)"
+                        (click)="$event.stopPropagation(); markNewsAsSeen(news)"
+                        [ngbTooltip]="seenNewsIds.includes(news.id) ? 'Mark as unread' : 'Mark as read'"
+                        data-bs-toggle="tooltip">
+                  <i [class]="seenNewsIds.includes(news.id) ? 'bi bi-check-circle-fill' : 'bi bi-check-circle'"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div *ngIf="displayMode === NewsDisplayMode.displayAllNews">
+    <h2 *ngIf="seenNewsIds.length !== 0">Seen News</h2>
+    <div class="row">
+
+      <div
+        class="col-xl-3 col-lg-4 p-2"
+        *ngFor="let news of getNews()"
+        [class.d-none]="!seenNewsIds.includes(news.id)"
+      >
+        <div (click)="openNewsDetails(news.id)" class="card news-card h-100">
+          <div class="card-layout">
+            <div class="image-section">
+              <img [src]="news.previewImage || 'http://localhost:8080/static/images/default_image.png'"
+                   [alt]="news.title"
+                   class="card-img news-image">
+            </div>
+            <div class="content-section">
+              <small class="news-date">{{ news.publishedAt | date }}</small>
+              <h5 class="card-title">{{ news.title }}</h5>
+              <p class="card-text">{{ news.summary }}</p>
+              <small class="text-muted mt-auto">Click for more</small>
+              <div class="action-buttons">
+                <button *ngIf="!isAdmin()"
+                        class="btn responsive-primary-button"
+                        [class.btn-success]="seenNewsIds.includes(news.id)"
+                        [class.btn-secondary]="!seenNewsIds.includes(news.id)"
+                        (click)="$event.stopPropagation(); markNewsAsSeen(news)"
+                        [ngbTooltip]="seenNewsIds.includes(news.id) ? 'Mark as unread' : 'Mark as read'"
+                        data-bs-toggle="tooltip">
+                  <i [class]="seenNewsIds.includes(news.id) ? 'bi bi-check-circle-fill' : 'bi bi-check-circle'"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+

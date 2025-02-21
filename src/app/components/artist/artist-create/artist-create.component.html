@@ -1,0 +1,59 @@
+<div *ngIf="errorMessage" class="alert alert-danger alert-dismissible fade show" role="alert">
+  <strong>Error!</strong> {{ errorMessage }}
+  <button type="button" (click)="vanishError()" class="close" aria-label="Close">
+    <span aria-hidden="true">&times;</span>
+  </button>
+</div>
+
+<div class="mt-4 container">
+  <div class="card">
+    <div class="card-header">
+      <h5>Add new Artist</h5>
+    </div>
+    <div class="card-body">
+      <form #artistForm="ngForm" (ngSubmit)="onSubmit()">
+
+        <!-- Name -->
+        <div class="form-group">
+          <label for="inputName">Name</label>
+          <input type="text" id="inputName" name="name" class="form-control" required
+                 placeholder="Enter artist name" [(ngModel)]="artist.name">
+        </div>
+
+        <!-- Summary -->
+        <div class="form-group">
+          <label for="inputSummary">Summary</label>
+          <textarea id="inputSummary" name="summary" class="form-control" rows="3" required
+                    placeholder="Enter summary" [(ngModel)]="artist.summary"></textarea>
+        </div>
+
+        <!-- Text -->
+        <div class="form-group">
+          <label for="inputText">Text</label>
+          <textarea id="inputText" name="text" class="form-control" rows="6" required
+                    placeholder="Enter detailed description" [(ngModel)]="artist.text"></textarea>
+        </div>
+
+        <!-- Image -->
+        <div class="form-group">
+          <label for="inputImage">Image</label>
+
+          <!-- File Input: Shown only when no image is selected -->
+          <div *ngIf="!selectedImagePreview">
+            <input type="file" id="inputImage" name="image" class="form-control" required accept="image/*"
+                   (change)="onImageSelected($event)">
+          </div>
+
+          <!-- Selected Image Preview: Shown only when an image is selected -->
+          <div *ngIf="selectedImagePreview" class="d-flex align-items-center">
+            <img [src]="selectedImagePreview" alt="Selected Image" class="img-thumbnail mr-3" style="max-height: 100px;">
+            <button type="button" class="btn btn-danger" (click)="removeImage()">Remove Image</button>
+          </div>
+        </div>
+
+        <!-- Submit Button -->
+        <button type="submit" class="btn btn-success float-right">Add Artist</button>
+      </form>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,140 @@
+<head>
+  <title></title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+</head>
+
+<div class="card-container">
+  <h1 class="display-4">News Management</h1>
+  <hr class="my-4">
+
+  <div class="action-card">
+    <h3>News Management</h3>
+    <p>Create and manage news entries</p>
+
+    <div class="button-group">
+      <button class="btn btn-primary btn-lg mb-3" (click)="openAddModal(newsAddModal)">
+        Create News Entry
+      </button>
+      <a class="btn btn-primary btn-lg" [routerLink]="['/news']">
+        View News
+      </a>
+    </div>
+  </div>
+</div>
+
+<ng-template #newsAddModal let-modal>
+  <div class="modal-header">
+    <h5 class="modal-title">News</h5>
+  </div>
+  <div class="modal-body">
+    <form (ngSubmit)="addNews(newsForm)" #newsForm="ngForm">
+      <div class="form-group">
+        <label for="inputTitle">Title</label>
+        <input type="text" name="title" class="form-control" id="inputTitle" required
+               aria-describedby="titleHelp" placeholder="Enter title" [(ngModel)]="currentNews.title">
+        <div *ngIf="submitted && newsForm.controls.title.errors" class="error">
+          <small class="form-text text-warning" *ngIf="newsForm.controls.title.errors.required">Title is required!</small>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="inputSummary">Summary</label>
+        <textarea rows="3" name="summary" class="form-control" id="inputSummary" required
+                  aria-describedby="summaryHelp" placeholder="Enter summary" [(ngModel)]="currentNews.summary"></textarea>
+        <div *ngIf="submitted && newsForm.controls.summary.errors" class="error">
+          <small class="form-text text-warning" *ngIf="newsForm.controls.summary.errors.required">Summary is required!</small>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="inputText">Text</label>
+        <textarea rows="6" name="text" class="form-control" id="inputText" required
+                  aria-describedby="textHelp" placeholder="Enter text" [(ngModel)]="currentNews.text"></textarea>
+        <div *ngIf="submitted && newsForm.controls.text.errors" class="error">
+          <small class="form-text text-warning" *ngIf="newsForm.controls.text.errors.required">Text is required!</small>
+        </div>
+      </div>
+
+      <!-- Event Selection Section -->
+      <div class="form-group">
+        <label>Select Event</label>
+        <div class="shows-selection-container">
+
+          <div>
+            <!-- Search input for events -->
+            <div class="show-search mb-3">
+              <input
+                type="text"
+                class="form-control"
+                placeholder="Search events..."
+                [(ngModel)]="eventSearchQuery"
+                name="eventSearch"
+                (ngModelChange)="loadAvailableEvents()"
+              >
+            </div>
+
+            <!-- Events grid -->
+            <div class="shows-grid">
+              <div *ngFor="let event of availableEvents"
+                   class="show-item"
+                   [class.selected]="selectedEvent?.id === (event.id)"
+                   (click)="toggleEventSelection(event)">
+                <div class="show-content">
+                  <strong>{{ event.name }}</strong><br>
+                  <small>{{event.type}}<br></small>
+                  <small>From {{ event.durationFrom | date }} to {{ event.durationTo }}</small>
+                </div>
+              </div>
+
+              <div *ngIf="availableEvents.length === 0" class="text-center text-muted p-3">
+                No events available
+
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="inputImages">Images</label>
+
+        <input type="file"
+               name="images"
+               class="form-control"
+               id="inputImages"
+               aria-describedby="imagesHelp"
+               accept="image/*"
+               multiple
+               (change)="onImageSelected($event)">
+
+        <small id="imageHelp" class="form-text text-muted">
+          Upload images.
+        </small>
+        <div *ngIf="getPreviewUrls().length > 0" class="form-group">
+          <label>Preview</label>
+          <div class="preview-carousel">
+            <img [src]="previewUrls[imageIndex]" alt="Image Preview" class="img-thumbnail"/>
+            <div *ngIf="previewUrls.length > 1" class="carousel-buttons">
+              <button type="button" class="btn btn-sm btn-primary" (click)="previousImage()">
+                <i class="bi bi-caret-left"></i>
+                Previous
+              </button>
+              <button type="button" class="btn btn-primary" (click)="nextImage()">
+                Next
+                <i class="bi bi-caret-right"></i>
+              </button>
+            </div>
+          </div>
+          <p class="text-center">
+            Image {{ imageIndex + 1 }} of {{ previewUrls.length }}
+          </p>
+        </div>
+      </div>
+
+      <button type="submit" class="btn btn-success float-right">Add News Entry</button>
+    </form>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-secondary" (click)="clearForm(); modal.dismiss('close')">Close</button>
+  </div>
+</ng-template>

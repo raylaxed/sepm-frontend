@@ -1,0 +1,100 @@
+<div class="card-container">
+  <div class="container">
+    <!-- Error Alert -->
+ 
+
+    <div class="controls">
+      <div class="control-group">
+        <label for="name">Name:</label>
+        <input type="text" id="name" [(ngModel)]="name" required [class.is-invalid]="validationErrors['name']">
+        <div class="invalid-feedback" *ngIf="validationErrors['name']">
+          {{ validationErrors['name'] }}
+        </div>
+      </div>
+      <div class="control-group">
+        <label for="rows">Rows:</label>
+        <input type="number" id="rows" [(ngModel)]="sectorRows" min="1" max="10">
+      </div>
+      <div class="control-group">
+        <label for="columns">Columns:</label>
+        <input type="number" id="columns" [(ngModel)]="sectorColumns" min="1" max="10">
+      </div>
+      <button class="btn btn-primary mt-3" (click)="logVenueData()">
+        Create Hall
+      </button>
+      <button class="btn btn-danger mt-3" (click)="startStageCreation()">
+        Add Stage
+      </button>
+      <div class="control-group">
+        <button class="btn btn-warning mt-3" (click)="startStandingSectorCreation()">
+          Add Standing Section
+        </button>
+      </div>
+    </div>
+    <canvas #gameCanvas [width]="canvasWidth" [height]="canvasHeight"></canvas>
+  </div>
+
+  <div class="legend">
+    <h4>Instructions</h4>
+    <ul>
+      <li><strong>Create Hall:</strong> Enter a name and click "Create Hall" to save your configuration</li>
+      <li><strong>Add Seats:</strong> Set rows and columns, then left-click to place a seating sector</li>
+      <li><strong>Add Stage:</strong> Click "Add Stage" button, then click and drag to draw the stage area</li>
+      <li><strong>Add Standing Area:</strong> Click "Add Standing Section", then click and drag to create a standing area</li>
+      <li><strong>Edit Sector Numbers:</strong> Double-click on any sector label to change its number</li>
+      <li><strong>Edit Standing Capacity:</strong> Click on the capacity number in a standing section's label</li>
+      <li><strong>Move Elements:</strong> Click and drag any sector label to move the entire sector</li>
+      <li><strong>Remove Elements:</strong>
+        <ul>
+          <li>Right-click on a sector label to remove the entire sector</li>
+          <li>Right-click on individual seats to remove them</li>
+          <li>Right-click on a standing sector label to remove the standing area</li>
+        </ul>
+      </li>
+    </ul>
+  </div>
+</div>
+
+<!-- Standing Sector Capacity Modal -->
+<ng-template #capacityModal let-modal>
+  <div class="modal-header">
+    <h5 class="modal-title">Set Standing Sector Capacity</h5>
+    <button type="button" class="btn-close" (click)="modal.dismiss('X')" aria-label="Close"></button>
+  </div>
+  <div class="modal-body">
+    <form #capacityForm="ngForm">
+      <div class="form-group">
+        <label for="capacity">Capacity</label>
+        <input type="number" 
+               class="form-control" 
+               id="capacity" 
+               name="capacity"
+               [(ngModel)]="tempCapacity"
+               min="1" 
+               required>
+      </div>
+    </form>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-secondary" (click)="modal.dismiss('cancel')">Cancel</button>
+    <button type="button" class="btn btn-primary" (click)="modal.close(tempCapacity)">Save</button>
+  </div>
+</ng-template>
+
+<!-- Sector Name Modal -->
+<ng-template #sectorNameModal let-modal>
+  <div class="modal-header">
+    <h4 class="modal-title">Set Sector Number</h4>
+    <button type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss()"></button>
+  </div>
+  <div class="modal-body">
+    <div class="form-group">
+      <label for="sectorName">Sector Number:</label>
+      <input type="number" class="form-control" id="sectorName" [(ngModel)]="tempSectorName" min="1">
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-primary" (click)="modal.close(tempSectorName)">Save</button>
+    <button type="button" class="btn btn-secondary" (click)="modal.dismiss()">Cancel</button>
+  </div>
+</ng-template>
