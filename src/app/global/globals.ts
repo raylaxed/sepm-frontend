@@ -5,6 +5,7 @@ import {Injectable} from '@angular/core';
 })
 export class Globals {
   readonly backendUri: string = this.findBackendUrl();
+  readonly imageBaseUrl: string = this.findImageBaseUrl();
 
   // List of 198 countries for the dropdown menus. We are not responsible for deciding what qualifies as a country.
   // This is just a list from github.
@@ -217,6 +218,14 @@ export class Globals {
     } else {
       // Use deployed backend URL
       return 'https://sepm-backend-6xd0.onrender.com/api/v1';
+    }
+  }
+
+  private findImageBaseUrl(): string {
+    if (window.location.port === '4200') {
+      return 'http://localhost:8080/static/images';
+    } else {
+      return 'https://sepm-backend-6xd0.onrender.com/static/images';
     }
   }
 }
